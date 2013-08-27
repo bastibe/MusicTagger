@@ -1,3 +1,6 @@
 
-Damit mal was im Ordner liegt :-)
-
+Kriterien für die SampleBase:
+    Nur Wav
+    Keine Vocals
+    Keine Loops
+    
