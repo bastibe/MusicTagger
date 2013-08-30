@@ -5,6 +5,9 @@ from unittest import TestCase
 import matplotlib.pyplot as plt
 import features
 
+
+def sine(periods=1, sig_len=1024):
+    return np.sin(np.linspace(0, periods*2*np.pi, sig_len+1))[:-1]
     
 def test_rms_zeros():
     test_data = np.zeros(100)
@@ -58,13 +61,12 @@ def test_spectral_centroid_dirac():
     TestCase().assertEqual(
         features.spectral_centroid(test_data, fft_test_data), 0.25) # spectrum of dirac should be constant
 def test_spectral_centroid_sine():
-    sig_len = 1024
-    test_data = np.sin(np.linspace(0, 2*np.pi, sig_len+1))[:-1]
+    test_data = sine()
     fft_test_data = np.fft.rfft(test_data)
-    # results in peak at freq[1]=1/sig_len with height of 500
+    # results in peak at freq[1]=1/sig_len with height of 512
     test = TestCase()
     test.assertAlmostEqual(
-        features.spectral_centroid(test_data, fft_test_data), 1/sig_len)
+        features.spectral_centroid(test_data, fft_test_data), 1/1024)
 
 
 def test_log_spectral_centroid_zeros():
@@ -122,8 +124,7 @@ def test_spectral_flatness_dirac():
     TestCase().assertEqual(
         features.spectral_flatness(test_data, fft_test_data), 1)
 def test_spectral_flatness_sine():
-    sig_len = 1024
-    test_data = np.sin(np.linspace(0, 2*np.pi, sig_len+1))[:-1]
+    test_data = sine()
     fft_test_data = np.fft.rfft(test_data)
     TestCase().assertAlmostEqual(
         features.spectral_flatness(test_data, fft_test_data), 0)
@@ -180,8 +181,7 @@ def test_spectral_abs_slope_mean_dirac():
     fft_test_data = np.fft.rfft(test_data)
     TestCase().assertEqual(spectral_abs_slope_mean(test_data, fft_test_data), 0)
 def test_spectral_abs_slope_mean_sine():
-    sig_len = 1024
-    test_data = np.sin(np.linspace(0, 2*np.pi, sig_len+1))[:-1]
+    test_data = sine()
     fft_test_data = np.fft.rfft(test_data)
     TestCase().assertEqual(spectral_abs_slope_mean(test_data, fft_test_data), 2)
     
