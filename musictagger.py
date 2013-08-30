@@ -10,7 +10,7 @@ import features
 def all_features():
     """Return all functions defined in the module "features"."""
     for name, function in inspect.getmembers(features):
-        if inspect.isfunction(function):
+        if inspect.isfunction(function) and not 'test' in name:
             yield(name, function)
 
 
