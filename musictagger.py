@@ -66,7 +66,8 @@ def extract_features(path, block_len_sec):
     """
     file = SoundFile(path, mode=read_mode)
     block_len = int(file.sample_rate*block_len_sec)
-    feature_data = {}
+    feature_data = { 'file': os.path.relpath(path),
+                     'tag': os.path.basename(os.path.dirname(path)) }
     for name, func in all_features():
         feature_data[name] = \
             np.array([func(block, fft_block)
@@ -79,4 +80,5 @@ if __name__ == '__main__':
     # for file in walk_files('SampleBase'):
     #    features[file] = feature_extraction(file)
     block_len_sec = 0.02
-    feature_data = {file: extract_features(file, block_len_sec) for file in walk_files('SampleBase', progress=True)}
+    feature_data = pd.concat([extract_features(file, block_len_sec) for file in walk_files('SampleBase', progress=True)])
+    feature_data.to_csv('feature_data.csv')
