@@ -1,5 +1,5 @@
 import os
-import types
+import inspect
 import pandas as pd
 import numpy as np
 from scipy.signal import hann
@@ -9,10 +9,10 @@ import features
 
 def all_features():
     """Return all functions defined in the module "features"."""
-    for name in dir(features):
-        func = features.__dict__[name]
-        if isinstance(func, types.FunctionType):
-            yield(name, func)
+    for name, function in inspect.getmembers(features):
+        if inspect.isfunction(function):
+            yield(name, function)
+
 
 def walk_files(sample_path, progress=False):
     """Iterate over all files in subdirectories of sample_path.
