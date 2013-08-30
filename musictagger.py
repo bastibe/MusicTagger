@@ -79,4 +79,4 @@ if __name__ == '__main__':
     # for file in walk_files('SampleBase'):
     #    features[file] = feature_extraction(file)
     block_len_sec = 0.02
-    features = {file: extract_features(file, block_len_sec) for file in walk_files('SampleBase', progress=True)}
+    feature_data = {file: extract_features(file, block_len_sec) for file in walk_files('SampleBase', progress=True)}
