@@ -45,7 +45,7 @@ def blocks(sound_file, block_len, overlap=0.5, window=hann):
     """
     sound_file.seek_absolute(0)
     while sound_file.seek(0) < len(sound_file)-1:
-        sound_file.seek(int(-block_len*2))
+        sound_file.seek(int(-block_len*overlap))
         data = sound_file.read(block_len)[:,0]
         data *= window(len(data))
         fft_data = np.fft.rfft(data)
