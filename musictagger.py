@@ -15,8 +15,6 @@ def all_features():
             yield(name, func)
 
 def walk_files(sample_path, progress=False):
-        if root == sample_path:
-            continue
     """Iterate over all files in subdirectories of sample_path.
 
     Dotfiles are ignored. If progress is True, a status message is
@@ -30,7 +28,9 @@ def walk_files(sample_path, progress=False):
                 print('\rDirectory: %s (%i%%) %s%s' %
                       (root, idx*100/len(files), file, ' '*20), end='')
             yield(root+'/'+file)
-        return #for debugging and stuff
+        if root != sample_path:
+            return #for debugging and stuff
+
 
 def blocks(sound_file, block_len, overlap=0.5, window=hann):
     """Returns blocks of audio data from a sound file.
