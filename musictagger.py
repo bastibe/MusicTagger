@@ -2,6 +2,7 @@ import os
 import inspect
 import pandas as pd
 import numpy as np
+from multiprocessing import Pool
 from scipy.signal import hann
 from pysoundfile import SoundFile, read_mode
 import features
@@ -14,22 +15,16 @@ def all_features():
             yield(name, function)
 
 
-def walk_files(sample_path, progress=False):
+def walk_files(sample_path):
     """Iterate over all files in subdirectories of sample_path.
 
-    Dotfiles are ignored. If progress is True, a status message is
-    printed for every file.
+    Dotfiles are ignored.
 
     """
     for root, dirs, files in os.walk(sample_path):
         for idx, file in enumerate(files):
             if file.startswith('.'): continue
-            if progress:
-                print('\rDirectory: %s (%i%%) %s%s' %
-                      (root, idx*100/len(files), file, ' '*20), end='')
             yield(root+'/'+file)
-        if root != sample_path:
-            return #for debugging and stuff
 
 
 def blocks(sound_file, block_len, overlap=0.5, window=hann):
@@ -52,7 +47,7 @@ def blocks(sound_file, block_len, overlap=0.5, window=hann):
         yield(data, fft_data)
 
 
-def extract_features(path, block_len_sec):
+def extract_features(path, block_len_sec=0.02):
     """Calculates features for each block of a sound file at a given path.
 
     This reads the sound file at path, cuts it up in windowed,
@@ -76,9 +71,6 @@ def extract_features(path, block_len_sec):
 
 
 if __name__ == '__main__':
-    # features = {}
-    # for file in walk_files('SampleBase'):
-    #    features[file] = feature_extraction(file)
-    block_len_sec = 0.02
-    feature_data = pd.concat([extract_features(file, block_len_sec) for file in walk_files('SampleBase', progress=True)])
+    pool = Pool(processes=8)
+    feature_data = pd.concat(pool.map(extract_features, walk_files('SampleBase')))
     feature_data.to_csv('feature_data.csv')
