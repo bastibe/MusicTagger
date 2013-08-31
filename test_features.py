@@ -5,153 +5,112 @@ from unittest import TestCase
 import matplotlib.pyplot as plt
 import features
 
+def zeros(sig_len=1024):
+    signal = np.zeros(sig_len)
+    return (signal, np.fft.rfft(signal))
+
+
+def ones(sig_len=1024):
+    signal = np.ones(sig_len)
+    return (signal, np.fft.rfft(signal))
+
 
 def sine(periods=1, sig_len=1024):
-    return np.sin(np.linspace(0, periods*2*np.pi, sig_len+1))[:-1]
+    signal = np.cos(np.linspace(0, periods*2*np.pi, sig_len+1))[:-1]
+    return (signal, np.fft.rfft(signal))
 
 
 def square(periods=1, sig_len=1024):
-    return scipy.signal.square(np.linspace(0, periods*2*np.pi, sig_len))
+    signal = scipy.signal.square(np.linspace(0, periods*2*np.pi, sig_len))
+    return (signal, np.fft.rfft(signal))
 
 
 def sawtooth(periods=1, sig_len=1024):
-    return scipy.signal.sawtooth(np.linspace(0, periods*2*np.pi, sig_len))
+    signal = scipy.signal.sawtooth(np.linspace(0, periods*2*np.pi, sig_len))
+    return (signal, np.fft.rfft(signal))
 
 
 def dirac(sig_len=1024):
-    return np.concatenate(([1], np.zeros(sig_len-1)))
+    signal = np.concatenate(([1], np.zeros(sig_len-1)))
+    return (signal, np.fft.rfft(signal))
 
 
 def test_rms_zeros():
-    test_data = np.zeros(1024)
-    TestCase().assertEqual(features.rms(test_data, None), 0)
+    TestCase().assertEqual(features.rms(*zeros()), 0)
 def test_rms_ones():
-    test_data = np.ones(1024)
-    TestCase().assertEqual(features.rms(test_data, None), 1)
+    TestCase().assertEqual(features.rms(*ones()), 1)
 def test_rms_square():
-    test_data = square(10)
-    TestCase().assertEqual(features.rms(test_data, None), 1)
+    TestCase().assertEqual(features.rms(*square()), 1)
 
 
 def test_peak_zeros():
-    test_data = np.zeros(1024)
-    TestCase().assertEqual(features.peak(test_data, None), 0)
+    TestCase().assertEqual(features.peak(*zeros()), 0)
 def test_peak_ones():
-    test_data = np.ones(1024)
-    TestCase().assertEqual(features.peak(test_data, None), 1)
+    TestCase().assertEqual(features.peak(*ones()), 1)
 def test_peak_square():
-    test_data = square(10)
-    TestCase().assertEqual(features.peak(test_data, None), 1)
+    TestCase().assertEqual(features.peak(*square()), 1)
 def test_peak_saw():
-    test_data = sawtooth(10)
-    TestCase().assertAlmostEqual(features.peak(test_data, None), 1)
+    TestCase().assertAlmostEqual(features.peak(*sawtooth(10)), 1)
 
 
 def test_crest_factor_zeros():
-    test_data = np.zeros(1024)
-    TestCase().assertEqual(features.crest_factor(test_data, None), 1)
+    TestCase().assertEqual(features.crest_factor(*zeros()), 1)
 def test_crest_factor_ones():
-    test_data = np.ones(1024)
-    TestCase().assertEqual(features.crest_factor(test_data, None), 1)
+    TestCase().assertEqual(features.crest_factor(*ones()), 1)
 def test_crest_factor_rect():
-    test_data = square(10)
-    TestCase().assertEqual(features.crest_factor(test_data, None), 1)
+    TestCase().assertEqual(features.crest_factor(*square()), 1)
 def test_crest_factor_dirac():
-    test_data = dirac(1024)
-    TestCase().assertEqual(features.crest_factor(test_data, None), 32)
+    TestCase().assertEqual(features.crest_factor(*dirac()), 32)
 
 
 def test_spectral_centroid_zeros():
-    test_data = np.zeros(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_centroid(test_data, fft_test_data), 0.25)
+    TestCase().assertEqual(features.spectral_centroid(*zeros()), 0.25)
+def test_spectral_centroid_ones():
+    TestCase().assertEqual(features.spectral_centroid(*ones()), 0.0)
 def test_spectral_centroid_dirac():
-    test_data = dirac(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    # spectrum of dirac should be constant
-    TestCase().assertEqual(
-        features.spectral_centroid(test_data, fft_test_data), 0.25)
+    # spectrum of a dirac should be constant
+    TestCase().assertEqual(features.spectral_centroid(*dirac()), 0.25)
 def test_spectral_centroid_sine():
-    test_data = sine()
-    fft_test_data = np.fft.rfft(test_data)
     # results in peak at freq[1]=1/sig_len with height of 512
-    TestCase().assertAlmostEqual(
-        features.spectral_centroid(test_data, fft_test_data), 1/1024)
+    TestCase().assertAlmostEqual(features.spectral_centroid(*sine()), 1/1024)
 
 
 def test_log_spectral_centroid_zeros():
-    test_data = np.zeros(1024)
-    fft_test_data = np.fft.rfft(test_data)
     TestCase().assertEqual(
-        features.log_spectral_centroid(test_data, fft_test_data), 3*np.log(1.5) - 1)
+        features.log_spectral_centroid(*zeros()), 3*np.log(1.5) - 1)
 def test_log_spectral_centroid_dirac():
-    test_data = dirac(4096) # result gets closer to analytical value
-                            # for longer signals.
-    fft_test_data = np.fft.rfft(test_data)
-    # due to rounding errors, the result is only approximately correct.
+    # result gets closer to analytical value for longer signals.
     TestCase().assertAlmostEqual(
-        features.log_spectral_centroid(test_data, fft_test_data), 3*np.log(1.5) - 1, 4)
+        features.log_spectral_centroid(*dirac(4096)), 3*np.log(1.5) - 1, 4)
 
 
 def test_spectral_variance_zeros():
-    test_data = np.zeros(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_variance(test_data, fft_test_data), 0)
+    TestCase().assertEqual(features.spectral_variance(*zeros()), 0)
 def test_spectral_variance_dirac():
-    test_data = dirac(1024)
-    fft_test_data = np.fft.rfft(test_data)
     TestCase().assertEqual(
-        features.spectral_variance(test_data, fft_test_data), 0)
+        features.spectral_variance(*dirac()), 0)
 
 
 def test_spectral_skewness_zeros():
-    test_data = np.zeros(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_skewness(test_data, fft_test_data), 0)
+    TestCase().assertEqual(features.spectral_skewness(*zeros()), 0)
 def test_spectral_skewness_dirac():
-    test_data = dirac(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_skewness(test_data, fft_test_data), 0)
+    TestCase().assertEqual(features.spectral_skewness(*dirac()), 0)
 
 
 def test_spectral_flatness_zeros():
-    test_data = np.zeros(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_flatness(test_data, fft_test_data), 1)
+    TestCase().assertEqual(features.spectral_flatness(*zeros()), 1)
 def test_spectral_flatness_dirac():
-    test_data = dirac(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_flatness(test_data, fft_test_data), 1)
+    TestCase().assertEqual(features.spectral_flatness(*dirac()), 1)
 def test_spectral_flatness_sine():
-    test_data = sine()
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertAlmostEqual(
-        features.spectral_flatness(test_data, fft_test_data), 0)
+    TestCase().assertAlmostEqual(features.spectral_flatness(*sine()), 0)
 
 
 def test_spectral_brightness_zeros():
-    test_data = np.zeros(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_brightness(test_data, fft_test_data), 1)
+    TestCase().assertEqual(features.spectral_brightness(*zeros()), 1)
 def test_spectral_brightness_dc():
-    test_data = np.ones(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_brightness(test_data, fft_test_data), 0)
+    TestCase().assertEqual(features.spectral_brightness(*ones()), 0)
 def test_spectral_brightness_nyquist_sine():
-    sig_len = 1024
-    test_data = np.zeros(sig_len)
-    test_data[::2] = 1 # sine at fs/2
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(
-        features.spectral_brightness(test_data, fft_test_data), 1)
+    TestCase().assertEqual(features.spectral_brightness(*sine(512)), 1)
 def test_spectral_brightness_high_noise():
     fft_test_data = np.linspace(0, 1, 512)
     test_data = np.fft.irfft(fft_test_data)
@@ -172,14 +131,8 @@ def test_spectral_brightness_low_noise():
 
 
 def test_spectral_abs_slope_mean_zeros():
-    test_data = np.zeros(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(features.spectral_abs_slope_mean(test_data, fft_test_data), 0)
+    TestCase().assertEqual(features.spectral_abs_slope_mean(*zeros()), 0)
 def test_spectral_abs_slope_mean_dirac():
-    test_data = dirac(1024)
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(features.spectral_abs_slope_mean(test_data, fft_test_data), 0)
+    TestCase().assertEqual(features.spectral_abs_slope_mean(*dirac()), 0)
 def test_spectral_abs_slope_mean_sine():
-    test_data = sine()
-    fft_test_data = np.fft.rfft(test_data)
-    TestCase().assertEqual(features.spectral_abs_slope_mean(test_data, fft_test_data), 2)
+    TestCase().assertEqual(features.spectral_abs_slope_mean(*sine()), 2)
