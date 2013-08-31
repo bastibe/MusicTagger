@@ -1,9 +1,9 @@
 import os
 import inspect
 import pandas as pd
-import numpy as np
 from multiprocessing import Pool
 from scipy.signal import hann
+from numpy.fft import rfft
 from pysoundfile import SoundFile, read_mode
 import features
 
@@ -37,14 +37,15 @@ def blocks(sound_file, block_len, overlap=0.5, window=hann):
     and be windowed by the window function. window is a function that
     takes a numeric argument and returns a window of that length.
 
+    This will only read the first channel if there are more than one.
+
     """
     sound_file.seek_absolute(0)
     while sound_file.seek(0) < len(sound_file)-1:
         sound_file.seek(int(-block_len*overlap))
-        data = sound_file.read(block_len)[:,0]
+        data = sound_file.read(block_len)[:,0] # first channel only
         data *= window(len(data))
-        fft_data = np.fft.rfft(data)
-        yield(data, fft_data)
+        yield(data, rfft(data))
 
 
 def extract_features(path, block_len_sec=0.02):
@@ -64,9 +65,7 @@ def extract_features(path, block_len_sec=0.02):
     feature_data = { 'file': os.path.relpath(path),
                      'tag': os.path.basename(os.path.dirname(path)) }
     for name, func in all_features():
-        feature_data[name] = \
-            np.array([func(block, fft_block)
-                      for block, fft_block in blocks(file, block_len)])
+        feature_data[name] = [func(*data) for data in blocks(file, block_len)]
     return pd.DataFrame(feature_data)
 
 
