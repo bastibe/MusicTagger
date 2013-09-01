@@ -76,65 +76,82 @@ class SignalsTestCase(unittest.TestCase):
 
 class RMSTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The RMS of zeros should be 0."""
         self.assertEqual(features.rms(*zeros()), 0)
 
     def test_ones(self):
+        """The RMS of ones should be 1."""
         self.assertEqual(features.rms(*ones()), 1)
 
     def test_square(self):
+        """The RMS of a square wave should be 1."""
         self.assertEqual(features.rms(*square()), 1)
 
 
 class PeakTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The peak of zeros should be 0."""
         self.assertEqual(features.peak(*zeros()), 0)
 
     def test_ones(self):
+        """The peak of ones should be 1."""
         self.assertEqual(features.peak(*ones()), 1)
 
     def test_square(self):
+        """The peak of a square wave should be 1."""
         self.assertEqual(features.peak(*square()), 1)
 
     def test_saw(self):
+        """The peak of a sawtooth wave should be about 1."""
         self.assertAlmostEqual(features.peak(*sawtooth(10)), 1)
 
 
 class CrestTestCase(unittest.TestCase):
     def test_factor_zeros(self):
+        """The crest factor of zeros should be 1."""
         self.assertEqual(features.crest_factor(*zeros()), 1)
 
     def test_factor_ones(self):
+        """The crests factor of ones should be 1."""
         self.assertEqual(features.crest_factor(*ones()), 1)
 
     def test_factor_rect(self):
+        """The crest factor of a square wave should be 1."""
         self.assertEqual(features.crest_factor(*square()), 1)
 
     def test_factor_dirac(self):
+        """The crest factor of a dirac should be sqrt(len(dirac))."""
         self.assertEqual(features.crest_factor(*dirac()), 32)
 
 
 class SpectralCentroidTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The spectral centroid of zeros should be 0.5/2."""
         self.assertEqual(features.spectral_centroid(*zeros()), 0.25)
 
     def test_ones(self):
+        """The spectral centroid of ones should be 0."""
         self.assertEqual(features.spectral_centroid(*ones()), 0.0)
 
     def test_dirac(self):
+        """The spectral centroid of a dirac should be 0.5/2."""
         # spectrum of a dirac should be constant
         self.assertEqual(features.spectral_centroid(*dirac()), 0.25)
 
     def test_sine(self):
+        """The spectral centroid of a sine wave should be 1/len(sine)."""
         # results in peak at freq[1]=1/sig_len with height of 512
         self.assertAlmostEqual(features.spectral_centroid(*sine()), 1/1024)
 
 
 class LogSpectralCentroidTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The log spectral centroid of zeros should be 3*log(1.5)-1."""
         self.assertEqual(
             features.log_spectral_centroid(*zeros()), 3*np.log(1.5) - 1)
 
     def test_dirac(self):
+        """The log spectral centroid of a dirac should be close to 3*log(1.5)-1."""
         # result gets closer to analytical value for longer signals.
         self.assertAlmostEqual(
             features.log_spectral_centroid(*dirac(4096)), 3*np.log(1.5) - 1, 4)
@@ -142,53 +159,66 @@ class LogSpectralCentroidTestCase(unittest.TestCase):
 
 class SpectralVarianceTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The spectral variance of zeros should be 0."""
         self.assertEqual(features.spectral_variance(*zeros()), 0)
 
     def test_dirac(self):
+        """The spectral variance of a dirac should be 0."""
         self.assertEqual(features.spectral_variance(*dirac()), 0)
 
 
 class SpectralSkewnessTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The spectral skewness of zeros should be 0."""
         self.assertEqual(features.spectral_skewness(*zeros()), 0)
 
     def test_dirac(self):
+        """The spectral skewness of a dirac should be 0."""
         self.assertEqual(features.spectral_skewness(*dirac()), 0)
 
 class SpectralFlatnessTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The spectral flatness of zeros should be 1."""
         self.assertEqual(features.spectral_flatness(*zeros()), 1)
 
     def test_dirac(self):
+        """The spectral flatness of a dirac should be 1."""
         self.assertEqual(features.spectral_flatness(*dirac()), 1)
 
     def test_sine(self):
+        """The spectral flatness of a sine should be 0"""
         self.assertAlmostEqual(features.spectral_flatness(*sine()), 0)
 
 
 class SpectralBrightnessTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The spectral brightness of zeros should be 1."""
         self.assertEqual(features.spectral_brightness(*zeros()), 1)
 
     def test_dc(self):
+        """The spectral brightness of ones should be 0."""
         self.assertEqual(features.spectral_brightness(*ones()), 0)
 
     def test_nyquist_sine(self):
+        """The spectral brightness of a nyquist sine should be 1."""
         self.assertEqual(features.spectral_brightness(*sine(512)), 1)
 
     def test_high_noise(self):
+        """The spectral brightness of highpass noise should be >1."""
         fft_test_data = np.linspace(0, 1, 512)
         test_data = np.fft.irfft(fft_test_data)
         self.assertGreater(
             features.spectral_brightness(test_data, fft_test_data), 1)
 
     def test_white_noise(self):
+        """The spectral brightness of white noise should be >1."""
         test_data = np.random.randn(1024)
         fft_test_data = np.fft.rfft(test_data)
         self.assertGreater(
             features.spectral_brightness(test_data, fft_test_data), 1)
 
     def test_low_noise(self):
+        """The spectral brightness of lowpass noise should be <1."""
         test_data = np.random.randn(1024)
         b, a = scipy.signal.butter(8, [0.1, 0.2]) # lowpass filter
         test_data = scipy.signal.lfilter(b, a, test_data)
@@ -199,12 +229,15 @@ class SpectralBrightnessTestCase(unittest.TestCase):
 
 class SpectralAbsSlopeMeanTestCase(unittest.TestCase):
     def test_zeros(self):
+        """The spectral abs slope mean of zeros should be 0."""
         self.assertEqual(features.spectral_abs_slope_mean(*zeros()), 0)
 
     def test_dirac(self):
+        """The spectral abs slope mean of a dirac should be 0."""
         self.assertEqual(features.spectral_abs_slope_mean(*dirac()), 0)
 
     def test_sine(self):
+        """The spectral abs slope mean of a sine should be 2."""
         self.assertEqual(features.spectral_abs_slope_mean(*sine()), 2)
 
 
