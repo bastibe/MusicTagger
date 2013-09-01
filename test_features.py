@@ -36,6 +36,44 @@ def dirac(sig_len=1024):
     return (signal, np.fft.rfft(signal))
 
 
+class SignalsTestCase(unittest.TestCase):
+    def test_zeros_spectrum(self):
+        """A zeros spectrum should be zero."""
+        signal, fft_signal = zeros(sig_len=1024)
+        self.assertTrue(np.all(fft_signal == np.zeros(513)))
+
+    def test_ones_spectrum(self):
+        """A ones spectrum should be a dirac."""
+        signal, fft_signal = ones(sig_len=1024)
+        expected = np.concatenate([[1024], np.zeros(513-1)])
+        self.assertTrue(np.all(fft_signal == expected))
+
+    def test_low_sine_spectrum(self):
+        """A single sine wave spectrum should be a dirac at index 1."""
+        signal, fft_signal = sine(periods=1, sig_len=1024)
+        expected = np.concatenate([[0, 512], np.zeros(513-2)])
+        self.assertTrue(np.allclose(fft_signal, expected))
+
+    def test_nyquist_sine(self):
+        """A nyquist sine should consist of alternating 1 and -1."""
+        signal, fft_signal = sine(periods=512, sig_len=1024)
+        expected = np.ones(1024)
+        expected[1::2] = -1
+        self.assertTrue(np.allclose(signal, expected))
+
+    def test_nyquist_sine_spectrum(self):
+        """A nyquist sine spectrum should be a dirac at index -1."""
+        signal, fft_signal = sine(periods=512, sig_len=1024)
+        expected = np.concatenate([np.zeros(513-1), [1024]])
+        self.assertTrue(np.allclose(fft_signal, expected))
+
+    def test_dirac_spectrum(self):
+        """A dirac spectrum should be ones."""
+        signal, fft_signal = dirac(sig_len=1024)
+        expected = np.ones(513)
+        self.assertTrue(np.allclose(fft_signal, expected))
+
+
 class RMSTestCase(unittest.TestCase):
     def test_zeros(self):
         self.assertEqual(features.rms(*zeros()), 0)
