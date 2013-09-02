@@ -1,4 +1,5 @@
 import os
+import sys
 import inspect
 import pandas as pd
 from multiprocessing import Pool
@@ -70,6 +71,9 @@ def extract_features(path, block_len_sec=0.02):
 
 
 if __name__ == '__main__':
-    pool = Pool(processes=8)
-    feature_data = pd.concat(pool.map(extract_features, walk_files('SampleBase')))
+    if sys.platform == 'win32':
+        feature_data = pd.concat([extract_features(f) for f in walk_files('SampleBase')])
+    else:
+        pool = Pool(processes=8)
+        feature_data = pd.concat(pool.map(extract_features, walk_files('SampleBase'), chunksize=500))
     feature_data.to_csv('feature_data.csv')
