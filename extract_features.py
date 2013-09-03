@@ -76,4 +76,4 @@ if __name__ == '__main__':
     else:
         pool = Pool(processes=8)
         feature_data = pd.concat(pool.map(extract_features, walk_files('SampleBase'), chunksize=500))
-    feature_data.to_csv('feature_data.csv')
+    feature_data.to_hdf('feature_data.hdf', 'features')
