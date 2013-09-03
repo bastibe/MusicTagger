@@ -6,18 +6,19 @@ import pdb
 from scipy.signal import welch, hann
 from extract_features import walk_files
 from pysoundfile import SoundFile, read_mode
+from multiprocessing import Pool
 
 
 def blocks(sound_file, block_len, psd_len, overlap=0.5):
-    """Returns power spectral density (psd) of blocks of audio data 
+    """Returns power spectral density (psd) of blocks of audio data
     from a sound file.
 
     sound_file must be an instance of pysoundfile.SoundFile.
 
     Each block will be of length block_len. The psd length is defined
-    by psd_len.The last block in the file is likely to be shorter and 
-    will be dismissed. Blocks will overlap according to overlap and 
-    be windowed by the window function. window is a function that 
+    by psd_len.The last block in the file is likely to be shorter and
+    will be dismissed. Blocks will overlap according to overlap and
+    be windowed by the window function. window is a function that
     takes a numeric argument and returns a window of that length.
 
     This will only read the first channel if there are more than one.
@@ -38,7 +39,7 @@ def extract_psd(path, block_len_sec=0.02):
     calculates the psd.
 
     Returns a pandas DataFrame with block indices as rows.
-    
+
     """
     file = SoundFile(path, mode=read_mode)
     block_len = int(file.sample_rate*block_len_sec)
@@ -48,7 +49,7 @@ def extract_psd(path, block_len_sec=0.02):
     psd_data['psd'] = [pd.Series(psd) for psd in blocks(file, block_len, psd_len)]
     return pd.DataFrame(psd_data)
 
-    
+
 if __name__ == '__main__':
     if sys.platform == 'win32':
         psd_data = pd.concat([extract_psd(f) for f in walk_files('SampleBase/DrumsPercussive')])
@@ -56,4 +57,3 @@ if __name__ == '__main__':
         pool = Pool(processes=4)
         psd_data = pd.concat(pool.map(extract_psd, walk_files('SampleBase'), chunksize=100))
     psd_data.to_hdf('feature_data.hdf', 'psd')
-    
