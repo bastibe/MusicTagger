@@ -74,6 +74,6 @@ if __name__ == '__main__':
     if sys.platform == 'win32':
         feature_data = pd.concat([extract_features(f) for f in walk_files('SampleBase')])
     else:
-        pool = Pool(processes=8)
-        feature_data = pd.concat(pool.map(extract_features, walk_files('SampleBase'), chunksize=500))
+        pool = Pool(processes=4)
+        feature_data = pd.concat(pool.map(extract_features, walk_files('SampleBase'), chunksize=100))
     feature_data.to_hdf('feature_data.hdf', 'features')
