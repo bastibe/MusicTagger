@@ -52,7 +52,7 @@ def extract_psd(path, block_len_sec=0.02):
 
 if __name__ == '__main__':
     if sys.platform == 'win32':
-        psd_data = pd.concat([extract_psd(f) for f in walk_files('SampleBase/DrumsPercussive')])
+        psd_data = pd.concat([extract_psd(f) for f in walk_files('SampleBase')])
     else:
         pool = Pool(processes=4)
         psd_data = pd.concat(pool.map(extract_psd, walk_files('SampleBase'), chunksize=100))
