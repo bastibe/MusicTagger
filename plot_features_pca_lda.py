@@ -1,3 +1,4 @@
+import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,6 +19,8 @@ pca = PCA(n_components=2)
 pca.fit(feature_data[features])
 transformed_data_pca = pca.transform(selected_data[features])
 print("explained variance ratio: %s" % str(pca.explained_variance_))
+with open('pca_features.pickle', 'wb') as f:
+    pickle.dump(pca, f)
 
 lda = LDA(n_components=2)
 lda.fit(feature_data[features], feature_data['tag'])
