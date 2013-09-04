@@ -46,8 +46,13 @@ def extract_psd(path, block_len_sec=0.02):
     psd_len = 128
     psd_data = { 'file': os.path.relpath(path),
                  'tag': os.path.basename(os.path.dirname(path)) }
-    psd_data['psd'] = [pd.Series(psd) for psd in blocks(file, block_len, psd_len)]
-    return pd.DataFrame(psd_data)
+    # put all psds in one big matrix
+    psds = np.vstack([psd for psd in blocks(file, block_len, psd_len)])
+    # save columns as columns in the DataFrame
+    for idx in range(psds.shape[1]):
+        psd_data[idx] = psds[:,idx]
+    # order columns such that psd indices come first
+    return pd.DataFrame(psd_data, columns=list(range(psds.shape[1]))+['file','tag'])
 
 
 if __name__ == '__main__':
