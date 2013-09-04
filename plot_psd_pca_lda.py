@@ -11,17 +11,18 @@ psd_data = pd.read_hdf('feature_data.hdf', 'psd')
 np.random.seed()
 idx = np.random.random_integers(len(psd_data), size=1000)
 selected_data = psd_data.iloc[idx]
+psd_cols = np.arange(65)
 
 pca = PCA(n_components=2)
-pca.fit(list(psd_data['psd']))
-transformed_data_pca = pca.transform(list(selected_data['psd']))
+pca.fit(psd_data[psd_cols])
+transformed_data_pca = pca.transform(selected_data[psd_cols])
 print("explained variance ratio: %s" % str(pca.explained_variance_))
 with open('pca_psd.pickle', 'wb') as f:
     pickle.dump(pca, f)
 
 lda = LDA(n_components=2)
-lda.fit(list(psd_data['psd']), psd_data['tag'])
-transformed_data_lda = lda.transform(list(selected_data['psd']))
+lda.fit(psd_data[psd_cols], psd_data['tag'])
+transformed_data_lda = lda.transform(selected_data[psd_cols])
 
 tags = selected_data['tag'].unique()
 colormap = mpl.cm.get_cmap("spectral")
