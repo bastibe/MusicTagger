@@ -3,20 +3,20 @@ import scipy.stats
 import scipy.signal
 
 
-def rms(data, fft_data):
+def rms(data, fft_data=None):
     """Calculates a measure for the loudness of the data."""
     return np.sqrt(np.mean(data*data))
 
 
-def peak(data, fft_data):
+def peak(data, fft_data=None):
     """Calculated the maximum value in the data."""
     return np.max(np.abs(data))
 
 
-def crest_factor(data, fft_data):
+def crest_factor(data, fft_data=None):
     """Calculates the ratio of peak to rms of the data."""
-    peak_val = peak(data, fft_data)
-    rms_val = rms(data, fft_data)
+    peak_val = peak(data)
+    rms_val = rms(data)
     if peak_val == 0:
         return 1
     return peak_val/rms_val
