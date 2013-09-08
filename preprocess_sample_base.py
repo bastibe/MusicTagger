@@ -7,8 +7,15 @@ import pdb
 
 
 def walk_files_preprocess(path_raw, path_processed):
+    """ walk all files in raw path, return those names and
+    further return the names of the corresponding processed 
+    files
+    """
     for file_path_raw in walk_files(path_raw):
         file_path_processed = path_processed + file_path_raw[len(path_raw):]
+        file_dir_processed = os.path.dirname(file_path_processed)
+        if not os.path.exists(file_dir_processed):
+            os.makedirs(file_dir_processed)
         yield(file_path_raw, file_path_processed)
 
         
