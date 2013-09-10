@@ -142,10 +142,8 @@ def dtw_distance_c(path1, path2):
 
 
 if __name__ == '__main__':
-    features = ['crest_factor', 'log_spectral_centroid', 'peak', 'rms',
-            'spectral_abs_slope_mean', 'spectral_brightness', 'spectral_centroid',
-            'spectral_flatness', 'spectral_skewness', 'spectral_variance']
-    feature_data = pd.read_hdf('data.hdf', 'features')
+    feature_cols = list(range(10))
+    feature_data = pd.read_hdf('feature_data.hdf', 'features')
     first_tag = feature_data['tag'].unique()[10]
     tagged_files = feature_data[feature_data['tag'] == first_tag]['file'].unique()
 
@@ -153,6 +151,6 @@ if __name__ == '__main__':
     second_file = feature_data[feature_data['file'] == tagged_files[1]]
 
     print("The distance between %s (%i blocks) and %s (%i blocks) is:" %
-          (tagged_files[0], first_file[features].shape[0],
-           tagged_files[1], second_file[features].shape[0]), end='')
-    print(" %f" % dtw_distance_c(first_file[features], second_file[features]))
+          (tagged_files[0], first_file[feature_cols].shape[0],
+           tagged_files[1], second_file[feature_cols].shape[0]), end='')
+    print(" %f" % dtw_distance_c(first_file[feature_cols], second_file[feature_cols]))
