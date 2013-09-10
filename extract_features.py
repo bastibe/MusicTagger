@@ -67,10 +67,10 @@ def extract_features(path, block_len_sec=0.02):
                      'tag': os.path.basename(os.path.dirname(path)) }
     for name, func in all_features():
         feature_data[name] = [func(*data) for data in blocks(file, block_len)]
-    return pd.DataFrame(feature_data)
+    return pd.DataFrame(feature_data, columns=([name for name, _ in all_features()] + ['file', 'tag']))
 
 if __name__ == '__main__':
-    sample_path = 'SampleBase'
+    sample_path = 'SampleBaseProcessed'
     if sys.platform == 'win32':
         feature_data = pd.concat([extract_features(f) for f in walk_files(sample_path)])
     else:
