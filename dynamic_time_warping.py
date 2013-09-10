@@ -12,7 +12,7 @@ ffi.cdef('float search_optimal_path(float*, float*, int, int);')
 if sys.platform == 'win32':
     _c = ffi.dlopen('dynamic_time_warping.dll')
 else:
-    _c = ffi.dlopen('dynamic_time_warping')
+    _c = ffi.dlopen('dynamic_time_warping.so')
 
 def distance_matrix(path1, path2):
     """Calculate the euclidean distance between every combination of
@@ -22,7 +22,7 @@ def distance_matrix(path1, path2):
         for col in range(distances.shape[1]):
             distances[row, col] = np.sqrt(np.sum((path1.iloc[row]-path2.iloc[col])**2))
     return distances
-    
+
 
 def extract_path(path_matrix):
     """Given a matrix that contains cheapest path vectors in the form:
@@ -122,7 +122,7 @@ def dtw_distance(path1, path2):
     min_distance = search_optimal_path(distances)
     return min_distance / np.linalg.norm(distances.shape)
 
-    
+
 def dtw_distance_c(path1, path2):
     """Calculate distance between two feature space paths by
     time-stretching both feature space paths for maximum
@@ -133,20 +133,20 @@ def dtw_distance_c(path1, path2):
     path1_c = ffi.new('char[]', np.array(path1, dtype=np.float32).tostring())
     path2_c = ffi.new('char[]', np.array(path2, dtype=np.float32).tostring())
     distances_c = ffi.new('float[]', num_distances)
-    _c.distance_matrix(ffi.cast('float*', path1_c), path1.shape[0], 
-                       ffi.cast('float*', path2_c), path2.shape[0], 
+    _c.distance_matrix(ffi.cast('float*', path1_c), path1.shape[0],
+                       ffi.cast('float*', path2_c), path2.shape[0],
                        path1.shape[1], distances_c)
     cumulative_costs_c = ffi.new('float[]', num_distances)
     min_distance = _c.search_optimal_path(distances_c, cumulative_costs_c, path1.shape[0], path2.shape[0])
     return min_distance / np.linalg.norm((path1.shape[0], path2.shape[0]))
-    
+
 
 if __name__ == '__main__':
     features = ['crest_factor', 'log_spectral_centroid', 'peak', 'rms',
             'spectral_abs_slope_mean', 'spectral_brightness', 'spectral_centroid',
             'spectral_flatness', 'spectral_skewness', 'spectral_variance']
     feature_data = pd.read_hdf('data.hdf', 'features')
-    first_tag = feature_data['tag'].unique()[0]
+    first_tag = feature_data['tag'].unique()[10]
     tagged_files = feature_data[feature_data['tag'] == first_tag]['file'].unique()
 
     first_file = feature_data[feature_data['file'] == tagged_files[0]]
