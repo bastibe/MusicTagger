@@ -4,27 +4,30 @@
 
 float search_optimal_path(float* costs, float* cumulative_costs, int num_rows, int num_cols)
 {
+    float cost_horz = 1.0/num_cols;
+    float cost_vert = 1.0/num_rows;
+    float cost_diag = sqrt(cost_horz*cost_horz + cost_vert*cost_vert);
     for(int row=0; row<num_rows; ++row)
     {
         for(int col=0; col<num_cols; ++col)
         {
             if(col==0 && row==0)
             {
-                cumulative_costs[row*num_cols+col] = costs[row*num_cols+col];
+                cumulative_costs[row*num_cols+col] = cost_diag*costs[row*num_cols+col];
             }
             else if(row==0)
             {
-                cumulative_costs[row*num_cols+col] = (cumulative_costs[row*num_cols + col-1] + costs[row*num_cols + col]);
+                cumulative_costs[row*num_cols+col] = cumulative_costs[row*num_cols + col-1] + cost_horz*costs[row*num_cols + col];
             }
             else if(col==0)
             {
-                cumulative_costs[row*num_cols+col] = (cumulative_costs[(row-1)*num_cols + col] + costs[row*num_cols + col]);
+                cumulative_costs[row*num_cols+col] = (cumulative_costs[(row-1)*num_cols + col] + cost_vert*costs[row*num_cols + col]);
             }
             else
             {
-                float horizontal = cumulative_costs[row*num_cols + col-1] + costs[row*num_cols + col];
-                float vertical = cumulative_costs[(row-1)*num_cols + col] + costs[row*num_cols + col];
-                float diagonal = cumulative_costs[(row-1)*num_cols + col-1] + 1.41*costs[row*num_cols + col];
+                float horizontal = cumulative_costs[row*num_cols + col-1] + cost_horz*costs[row*num_cols + col];
+                float vertical = cumulative_costs[(row-1)*num_cols + col] + cost_vert*costs[row*num_cols + col];
+                float diagonal = cumulative_costs[(row-1)*num_cols + col-1] + cost_diag*costs[row*num_cols + col];
                 cumulative_costs[row*num_cols + col] = fmin(fmin(horizontal, vertical), diagonal);
             }
         }

@@ -10,9 +10,9 @@ ffi = FFI()
 ffi.cdef('void distance_matrix(float*, int, float*, int, int, float*);')
 ffi.cdef('float search_optimal_path(float*, float*, int, int);')
 if sys.platform == 'win32':
-    _c = ffi.dlopen('dynamic_time_warping.dll')
+    _c = ffi.dlopen('dtw.dll')
 else:
-    _c = ffi.dlopen('dynamic_time_warping.so')
+    _c = ffi.dlopen('dtw.so')
 
 def distance_matrix(path1, path2):
     """Calculate the euclidean distance between every combination of
@@ -20,7 +20,7 @@ def distance_matrix(path1, path2):
     distances = np.zeros((path1.shape[0], path2.shape[0]))
     for row in range(distances.shape[0]):
         for col in range(distances.shape[1]):
-            distances[row, col] = np.sqrt(np.sum((path1.iloc[row]-path2.iloc[col])**2))
+            distances[row, col] = np.sqrt(np.sum((path1[row:row+1]-path2[col:col+1])**2))
     return distances
 
 
@@ -94,20 +94,23 @@ def search_optimal_path(costs):
     """Given a matrix of cost values, calculate the path through this
     matrix with the smallest cumulative cost."""
     cumulative_costs = np.zeros(costs.shape)
+    cost_vert = 1/costs.shape[0]
+    cost_horz = 1/costs.shape[1]
+    cost_diag = np.sqrt(cost_vert**2 + cost_horz**2)
     for row in range(costs.shape[0]):
         for col in range(costs.shape[1]):
             if col == 0 and row == 0:
-                cumulative_costs[row, col] = costs[row, col]
+                cumulative_costs[row, col] = cost_diag*costs[row, col]
             elif row == 0:
                 cumulative_costs[row, col] = (cumulative_costs[row, col-1] +
-                                              costs[row, col])
+                                              cost_horz*costs[row, col])
             elif col == 0:
                 cumulative_costs[row, col] = (cumulative_costs[row-1, col] +
-                                              costs[row, col])
+                                              cost_vert*costs[row, col])
             else:
-                horizontal = cumulative_costs[row, col-1] + costs[row, col]
-                vertical   = cumulative_costs[row-1, col] + costs[row, col]
-                diagonal   = cumulative_costs[row-1, col-1] + 1.41*costs[row, col]
+                horizontal = cumulative_costs[row, col-1] + cost_horz*costs[row, col]
+                vertical   = cumulative_costs[row-1, col] + cost_vert*costs[row, col]
+                diagonal   = cumulative_costs[row-1, col-1] + cost_diag*costs[row, col]
                 cumulative_costs[row, col] = np.min((horizontal, vertical, diagonal))
     return cumulative_costs[-1,-1]
 
@@ -120,7 +123,7 @@ def dtw_distance(path1, path2):
     """
     distances = distance_matrix(path1, path2)
     min_distance = search_optimal_path(distances)
-    return min_distance / np.linalg.norm(distances.shape)
+    return min_distance
 
 
 def dtw_distance_c(path1, path2):
@@ -138,7 +141,7 @@ def dtw_distance_c(path1, path2):
                        path1.shape[1], distances_c)
     cumulative_costs_c = ffi.new('float[]', num_distances)
     min_distance = _c.search_optimal_path(distances_c, cumulative_costs_c, path1.shape[0], path2.shape[0])
-    return min_distance / np.linalg.norm((path1.shape[0], path2.shape[0]))
+    return min_distance
 
 
 if __name__ == '__main__':
