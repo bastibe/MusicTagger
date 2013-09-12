@@ -77,6 +77,6 @@ def db_to_lin(value_db):
 
 
 if __name__ == '__main__':
-    sample_path_raw = 'SampleBase'
-    sample_path_processed = 'SampleBaseProcessed'
+    sample_path_raw = 'Samples'
+    sample_path_processed = 'SamplesProcessed'
     [preprocess_sample(*pathes) for pathes in walk_files_preprocess(sample_path_raw, sample_path_processed)]

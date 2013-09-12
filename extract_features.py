@@ -70,10 +70,10 @@ def extract_features(path, block_len_sec=0.02):
     return pd.DataFrame(feature_data, columns=([name for name, _ in all_features()] + ['file', 'tag']))
 
 if __name__ == '__main__':
-    sample_path = 'SampleBaseProcessed'
+    sample_path = 'SamplesProcessed'
     if sys.platform == 'win32':
         feature_data = pd.concat([extract_features(f) for f in walk_files(sample_path)])
     else:
         pool = Pool(processes=4)
         feature_data = pd.concat(pool.map(extract_features, walk_files(sample_path), chunksize=100))
-    feature_data.to_hdf('feature_data.hdf', 'features')
+    feature_data.to_hdf('feature_data.hd5', 'features')

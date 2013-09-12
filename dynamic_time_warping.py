@@ -146,7 +146,7 @@ def dtw_distance_c(path1, path2):
 
 if __name__ == '__main__':
     feature_cols = list(range(10))
-    feature_data = pd.read_hdf('feature_data.hdf', 'features')
+    feature_data = pd.read_hdf('feature_data.hd5', 'features')
     first_tag = feature_data['tag'].unique()[10]
     tagged_files = feature_data[feature_data['tag'] == first_tag]['file'].unique()
 

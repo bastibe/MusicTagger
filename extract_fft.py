@@ -57,8 +57,8 @@ def extract_psd(path, block_len_sec=0.02):
 
 if __name__ == '__main__':
     if sys.platform == 'win32':
-        psd_data = pd.concat([extract_psd(f) for f in walk_files('SampleBase')])
+        psd_data = pd.concat([extract_psd(f) for f in walk_files('SamplesProcessed')])
     else:
         pool = Pool(processes=4)
-        psd_data = pd.concat(pool.map(extract_psd, walk_files('SampleBase'), chunksize=100))
-    psd_data.to_hdf('feature_data.hdf', 'psd')
+        psd_data = pd.concat(pool.map(extract_psd, walk_files('SamplesProcessed'), chunksize=100))
+    psd_data.to_hdf('feature_data.hd5', 'psd')

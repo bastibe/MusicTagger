@@ -26,7 +26,7 @@ def compare_file_to_hdf(data):
     This is a helper function for the multiprocessing.Pool.
 
     """
-    all_data = pd.read_hdf('feature_data.hdf', 'pca')
+    all_data = pd.read_hdf('feature_data.hd5', 'pca')
     return compare_file(data, all_data)
 
 
@@ -40,7 +40,7 @@ def compare_save_all_data():
     machine. Do not try this on Windows.
 
     """
-    feature_data = pd.read_hdf('feature_data.hdf', 'pca')
+    feature_data = pd.read_hdf('feature_data.hd5', 'pca')
     pool = Pool(processes=4)
     arguments = [data for _, data in feature_data.groupby('file')]
     # this produces a list of lists of ('file', 'file', distance) tuples
@@ -52,7 +52,7 @@ def compare_save_all_data():
     for file1, file2, distance in distances:
         distance_mat[file_map[file1], file_map[file2]] = distance
     distances_df = pd.DataFrame(distance_mat, index=files, columns=files)
-    distances_df.to_hdf('distances.hdf', 'distances')
+    distances_df.to_hdf('distances.hd5', 'distances')
 
 
 def nearest_class(file, classes, distances):
@@ -79,5 +79,5 @@ def mini_batch_k_means(distances, num_classes, batch_size, num_iterations):
 
 
 if __name__ == '__main__':
-    distances = pd.read_hdf('distances.hdf', 'distances')
+    distances = pd.read_hdf('distances.hd5', 'distances')
     classes = mini_batch_k_means(distances, 10, 500, 50)
