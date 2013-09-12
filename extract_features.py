@@ -1,3 +1,4 @@
+import pickle
 import os
 import sys
 import inspect
@@ -6,6 +7,8 @@ from multiprocessing import Pool
 from scipy.signal import hann
 from numpy.fft import rfft
 from pysoundfile import SoundFile, read_mode
+from preprocess import preprocess_sample_data
+from sklearn.decomposition import PCA
 import features
 
 
@@ -28,10 +31,8 @@ def walk_files(sample_path):
             yield(root+'/'+file)
 
 
-def blocks(sound_file, block_len, overlap=0.5, window=hann):
+def blocks(samples, block_len, overlap=0.5, window=hann):
     """Returns blocks of audio data from a sound file.
-
-    sound_file must be an instance of pysoundfile.SoundFile.
 
     Each block will be of length block_len. The last block in the file
     is likely to be shorter. Blocks will overlap according to overlap
@@ -41,10 +42,11 @@ def blocks(sound_file, block_len, overlap=0.5, window=hann):
     This will only read the first channel if there are more than one.
 
     """
-    sound_file.seek_absolute(0)
-    while sound_file.seek(0) < len(sound_file)-1:
-        sound_file.seek(int(-block_len*overlap))
-        data = sound_file.read(block_len)[:,0] # first channel only
+    read_position = int(block_len*overlap)
+    while read_position < len(samples)-1:
+        read_position -= int(block_len*overlap)
+        data = samples[read_position:read_position+block_len]
+        read_position += block_len
         data *= window(len(data))
         yield(data, rfft(data))
 
@@ -63,17 +65,53 @@ def extract_features(path, block_len_sec=0.02):
     """
     file = SoundFile(path, mode=read_mode)
     block_len = int(file.sample_rate*block_len_sec)
+    samples = preprocess_sample_data(file[:])
     feature_data = { 'file': os.path.relpath(path),
                      'tag': os.path.basename(os.path.dirname(path)) }
     for name, func in all_features():
-        feature_data[name] = [func(*data) for data in blocks(file, block_len)]
+        feature_data[name] = [func(*data) for data in blocks(samples, block_len)]
     return pd.DataFrame(feature_data, columns=([name for name, _ in all_features()] + ['file', 'tag']))
 
+
+def calculate_pca(feature_data, num_components):
+    """Create a PCA object for a dataset"""
+    pca = PCA(n_components=num_components)
+    pca.fit(feature_data)
+    return pca
+
+
+def extract_features_pca(path, pca, block_len_sec=0.02):
+    features = extract_features(path, block_len_sec)
+    meta_data = features[['tag', 'file']]
+    feature_data = features[np.arange(10)]
+    pca_data = pca.transform(feature_data)
+    pca_feature_data = meta_data
+    for n in range(pca_data.shape[1]):
+        meta_data.insert(n, n, pca_data[:,n])
+    return meta_data
+
+
 if __name__ == '__main__':
-    sample_path = 'SamplesProcessed'
+    sample_path = sys.argv[1] if len(sys.argv) > 1 else "Samples"
+    hdf_name = sys.argv[2] if len(sys.argv) > 2 else "feature_data.hd5"
+    pca_name = sys.argv[3] if len(sys.argv) > 3 else "pca.pickle"
+
+    # calculate feature data
     if sys.platform == 'win32':
         feature_data = pd.concat([extract_features(f) for f in walk_files(sample_path)])
     else:
         pool = Pool(processes=4)
         feature_data = pd.concat(pool.map(extract_features, walk_files(sample_path), chunksize=100))
-    feature_data.to_hdf('feature_data.hd5', 'features')
+    feature_data.to_hdf(hdf_name, 'features')
+
+    # calculate principal component analysis
+    feature_indices = list(range(10))
+    pca = calculate_pca(feature_data[feature_indices], 5)
+    with open(pca_name, 'wb') as f: pickle.dump(pca, f)
+
+    # calculate reduced feature data
+    pca_features = pca.transform(feature_data[feature_indices])
+    feature_data = feature_data[['tag', 'file']]
+    for n in range(5):
+        feature_data.insert(n, n, pca_features[:,n])
+    feature_data.to_hdf(hdf_name, 'pca')
