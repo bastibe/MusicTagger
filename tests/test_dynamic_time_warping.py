@@ -1,6 +1,9 @@
 import unittest
 import numpy as np
+import sys
+sys.path.append("..")
 import dynamic_time_warping as dtw
+
 
 class DTWTestCase(unittest.TestCase):
     def setUp(self):
