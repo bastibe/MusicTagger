@@ -1,14 +1,14 @@
-﻿\section{Features}
+\section{Features}
 \label{sec:Features}
 Each sample is chunked into blocks. Different features are calculated on each block. The blocks have a length of 20~ms, 50~\% overlap and are Hann windowed. The remaining part of the sample, after the blocks are processed, is ignored.\\
 The used features are the root mean square (RMS), peak, crest factor, spectral centroid, logarithmic spectral centroid, spectral variance, spectral skewness, spectral flatness, spectral brightness and mean spectral absolute slope. If the block is given via x[k], $k$ being the frame number, and the FFT of the block via X[n], $n$ being the bin number, the features are calculated as follows:
 \begin{description}
-    \item[RMS:]\\
-        
-    \item[Peak:]\\
-        
+    \item[RMS:]
+
+    \item[Peak:]
+
 \end{description}
 
 
 The Features of each sample can be considered as a point in a $d \cdot n$ dimensional space. $d$ is the number of blocks and $d$ the number of dimensions outputted by the PCA.\\
-$d$ was set to five. 
+$d$ was set to five.

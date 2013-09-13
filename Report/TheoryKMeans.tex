@@ -1,3 +1,12 @@
-﻿\section{Modified Fast Batch k-Means Algorithm}
+\section{Modified Fast Batch k-Means Algorithm}
 \label{sec:TheoryKMeans}
-The k-Means Algorithm takes $k$ points in the space representing the center of $k$ classes. It searches for each data point which class fits best. The criterion for this is the distance from the center. 
+
+The $k$-Means algorithm takes $k$ random points in space representing the center of $k$ classes. These class centers are then refined in two steps: First, each data point is classified to belong to one of the classes by selecting the closest class center. Second, the class centers are moved towards the geometric center of all the data points belonging to the class. These steps are repeated until the class centers stop moving.
+
+However, this approach is impractical for large data sets, since every iteration needs to calculate distances from every data point to every class center. A modification of this algorithm called Mini-batch $k$-Means\footnote{http://www.eecs.tufts.edu/~dsculley/papers/fastkmeans.pdf} uses only a random subset of all data points for each iteration. This results in slightly less accurate class centers, but much greater performance.
+
+In our case though, there is no euclidean feature space in which we could position class centers. The only measure available is the DTW-distance between the different samples. Thus, we modified the second step of the Mini-batch $k$-Means algorithm to choose the centermost sample instead of an arbitrarily chosen point. The centermost sample is defined as the one sample in the class that has the least distance to all other samples in the class.
+
+Running this algorithm on our data set results in $k$ class centers. New samples can then be classified to belong to one of these centers by selecting the closest one.
+
+Calculating class centers requires the calculation of many distances between many samples. In order to speed up this process, all distances between all samples have been pre-calculated and put into a database. This process can take several hours on modern computers. The class centers are then calculated based on the distances in this database. We used a Pandas DataFrame to represent the database.

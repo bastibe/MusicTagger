@@ -1,2 +1,9 @@
 ﻿\section{Preprocessing of the Samples}
 \label{sec:Preprocessing}
+
+In order to make samples more comparable, all samples are preprocessed before calculating any features:
+\begin{itemize}
+  \item Multi-channel samples are panned to mono.
+  \item Silence at the beginning and end of each sample is cut off.
+  \item All samples are normalized to an RMS of 1.
+\end{itemize}

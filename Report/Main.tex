@@ -1,11 +1,11 @@
-﻿
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETTINGS/DEFINITIONS/CONFIGURATION
 \documentclass[10pt,a4paper,titlepage,twoside]{article}
 %\documentclass[10pt,a4paper,titlepage]{article}
 \usepackage{ifthen}	% if else operations used for the configuration
 \newboolean{German} 					% boolean for german language
-\setboolean{German}{true} 		% set if german should be used, else english is
+\setboolean{German}{false} 		% set if german should be used, else english is
 \newboolean{twosided}
 \setboolean{twosided}{true}	% set if the document should be twosided
 \newcommand{\defName}					% set the name of the author
@@ -24,9 +24,9 @@
 	{Carl von Ossietzky Universität Oldenburg}
 \newcommand{\defKindOfReport}	% what the report is for (lecture/technical report/bachelor thesis)
 	{Informationsverarbeitung und Kommunikation:\\
-	Projektbeschreibung}
+	Project Description}
 \newcommand{\defTitle}				% define the title of the report
-	{Samplezuordnung für elektronische Tanzmusik}
+	{Sample Classification for Electronic Dance Music}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PACKAGES AND SETTINGS
@@ -41,7 +41,7 @@
 
 % text related
 \usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
+%\usepackage[T1]{fontenc}
 \usepackage{lmodern}		% changes font
 
 % graphics related
