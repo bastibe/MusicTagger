@@ -1,9 +1,20 @@
+import pickle
 import sys
 import numpy as np
 import pandas as pd
 from cffi import FFI
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from extract_features import extract_features_pca
+from docopt import docopt
+
+
+__doc__ = """Usage: dynamic_time_warping.py FILE1 FILE2 [-p PICKLE_FILE]
+
+Options:
+-h --help       this message
+-p PICKLE_FILE  the file containing the pickled PCA object [default: pca.pickle]
+"""
 
 
 ffi = FFI()
@@ -23,72 +34,6 @@ def distance_matrix(path1, path2):
             distances[row, col] = np.sqrt(np.sum((path1[row:row+1]-path2[col:col+1])**2))
     return distances
 
-
-def extract_path(path_matrix):
-    """Given a matrix that contains cheapest path vectors in the form:
-    cheapest is left: 1
-    cheapest is down: 2
-    cheapest is down and left: 3
-    Find the cheapest path from (0,0) to (max,max).
-    """
-    optimal_path_matrix = np.zeros(path_matrix.shape)
-    [row, col] = [x-1 for x in path_matrix.shape]
-    while row != 0 and col != 0:
-        optimal_path_matrix[row, col] = 1
-        if path_matrix[row, col] == 1:
-            col -= 1
-        elif path_matrix[row, col] == 2:
-            row -= 1
-        else:
-            row -= 1
-            col -= 1
-    optimal_path_matrix[0,0] = 1
-    return np.where(optimal_path_matrix == 1)
-
-def search_optimal_path_verbose(costs):
-    """Given a matrix of cost values, calculate the path through this
-    matrix with the smallest cumulative cost.
-
-    Also, return the cumulative cost matrix and the optimal path
-    through this matrix.
-
-    """
-    cumulative_costs = np.zeros(costs.shape)
-    path = np.zeros(costs.shape)
-    for row in range(costs.shape[0]):
-        for col in range(costs.shape[1]):
-            if col == 0 and row == 0:
-                cumulative_costs[row, col] = costs[row, col]
-                path[row, col] = 0
-            elif row == 0:
-                cumulative_costs[row, col] = (cumulative_costs[row, col-1] +
-                                              costs[row, col])
-                path[row, col] = 1
-            elif col == 0:
-                cumulative_costs[row, col] = (cumulative_costs[row-1, col] +
-                                              costs[row, col])
-                path[row, col] = 2
-            else:
-                horizontal = cumulative_costs[row, col-1] + costs[row, col]
-                vertical   = cumulative_costs[row-1, col] + costs[row, col]
-                diagonal   = cumulative_costs[row-1, col-1] + 1.41*costs[row, col]
-                cumulative_costs[row, col] = np.min((horizontal, vertical, diagonal))
-                path[row, col] = np.argmin((horizontal, vertical, diagonal))+1
-    min_cost = cumulative_costs[-1,-1]
-    min_path = extract_path(path)
-    plt.figure()
-    plt.subplot(1,2,1)
-    plt.imshow(costs, cmap=cm.gray)
-    plt.title("Cost Matrix")
-    ax = plt.subplot(1,2,2)
-    plt.imshow(cumulative_costs, cmap=cm.gray)
-    plt.title("Cumulative Cost and Cheapest Path")
-    xlim, ylim = (ax.get_xlim(), ax.get_ylim())
-    plt.plot(*min_path[::-1], color='red')
-    plt.gca().set_xlim(xlim)
-    plt.gca().set_ylim(ylim)
-    plt.show()
-    return min_cost
 
 def search_optimal_path(costs):
     """Given a matrix of cost values, calculate the path through this
@@ -145,15 +90,13 @@ def dtw_distance_c(path1, path2):
 
 
 if __name__ == '__main__':
-    feature_cols = list(range(10))
-    feature_data = pd.read_hdf('feature_data.hd5', 'features')
-    first_tag = feature_data['tag'].unique()[10]
-    tagged_files = feature_data[feature_data['tag'] == first_tag]['file'].unique()
+    options = docopt(__doc__)
+    with open(options['-p'], 'rb') as f:
+        pca = pickle.load(f)
+    first_file = extract_features_pca(options['FILE1'], pca)
+    second_file = extract_features_pca(options['FILE2'], pca)
+    feature_cols = np.arange(first_file.shape[1]-2)
 
-    first_file = feature_data[feature_data['file'] == tagged_files[0]]
-    second_file = feature_data[feature_data['file'] == tagged_files[1]]
-
-    print("The distance between %s (%i blocks) and %s (%i blocks) is:" %
-          (tagged_files[0], first_file[feature_cols].shape[0],
-           tagged_files[1], second_file[feature_cols].shape[0]), end='')
-    print(" %f" % dtw_distance_c(first_file[feature_cols], second_file[feature_cols]))
+    print("The distance between %s and %s is: %f" %
+          (options['FILE1'], options['FILE2'],
+           dtw_distance_c(first_file[feature_cols], second_file[feature_cols])))
