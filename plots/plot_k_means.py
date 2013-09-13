@@ -31,11 +31,11 @@ for idx, tag in enumerate(tags):
                          for cls_feat in cls_features])
         class_histograms[idx, np.argmin(cls_distances)] += 1
 
-imshow(class_histograms, cmap='gray', interpolation='none')
-gca().set_xticks(np.arange(10))
-gca().set_xticklabels([os.path.basename(os.path.dirname(cls)) for cls in classes], rotation=90)
-gca().set_yticks(np.arange(12))
-gca().set_yticklabels(tags)
+ax = imshow(class_histograms, cmap='gray', interpolation='none')
+ax.axes.set_xticks(np.arange(10))
+ax.axes.set_xticklabels([os.path.basename(os.path.dirname(cls)) for cls in classes], rotation=90)
+ax.axes.set_yticks(np.arange(12))
+ax.axes.set_yticklabels(tags)
 colorbar()
-tight_layout()
-show()
+ax.axes.set_position((-0.3,0.3,1,0.6))
+gcf().savefig('k_nn.png')
