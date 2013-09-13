@@ -16,6 +16,9 @@ from docopt import docopt
 __doc__ = \
 """Usage: extract_features.py [-h] [-s DIR] [-f HD5_FILE] [-p PICKLE_FILE] [--pca=K]
 
+Warning: This will take about 6 min on a recent four-core Unix machine.
+         On Windows, it will take 25 min or more, since multiprocessing is not available
+
 Options:
 -h --help       show this
 -s DIR          directory where all samples are stored [default: Samples]
