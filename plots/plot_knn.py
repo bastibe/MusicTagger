@@ -15,7 +15,7 @@ feature_data = pd.read_hdf('../feature_data.hd5', 'pca')
 with open('../pca.pickle', 'rb') as f:
     pca = pickle.load(f)
 
-    
+
 sample_dir = '../TestSamples/'
 tags = [d for d in os.listdir(sample_dir) if os.path.isdir(sample_dir+d)]
 all_classifications = {}
@@ -24,8 +24,6 @@ for t in tags:
 count_all = []
 for idx, tag in enumerate(tags):
     tag_dir = tag + '/'
-    #if idx > 1:
-    #    continue
     sample_paths = [sample_dir+tag_dir+sample
                     for sample in os.listdir(sample_dir+tag_dir)
                     if os.path.isfile(sample_dir+tag_dir+sample)]
@@ -35,19 +33,19 @@ for idx, tag in enumerate(tags):
         all_classifications[tag] += [k_nearest_neighbors(file_feature, feature_data, k=10)[0]]
     count_all += [Counter([b[0] for b in all_classifications[tag]]).most_common()]
 
-    
+
 tag2idx = {tag:idx for idx, tag in enumerate(tags)}
 knn_histogram = zeros((len(tags), len(tags)))
 for idx, item in enumerate(count_all):
     for tag, count in item:
         knn_histogram[idx, tag2idx[tag]] = count
-        
-        
+
+
 ax = imshow(knn_histogram, cmap='gray', interpolation='none')
 ax.axes.set_xticks(np.arange(12))
 ax.axes.set_xticklabels(tags, rotation=90)
 ax.axes.set_yticks(np.arange(12))
 ax.axes.set_yticklabels(tags)
 colorbar()
-ax.axes.set_position((-0.3,0.3,1,0.6))
-gcf().savefig('knn.png')
+ax.axes.set_position((-0.3,0.35,1,0.6))
+gcf().savefig('k_nn.png')
