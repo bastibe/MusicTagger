@@ -3,6 +3,7 @@ import os
 import sys
 import inspect
 import pandas as pd
+import numpy as np
 from multiprocessing import Pool
 from scipy.signal import hann
 from numpy.fft import rfft
