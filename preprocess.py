@@ -3,6 +3,9 @@ import numpy as np
 from pysoundfile import SoundFile, read_mode, write_mode, snd_types, snd_subtypes, snd_endians
 from features import rms, peak
 import pdb
+from docopt import docopt
+
+__doc__ = """Usage: preprocess.py IN_FILE OUT_FILE"""
 
 def preprocess_sample(path_raw, path_processed):
     """ process the sample of the sample base to be
@@ -62,6 +65,5 @@ def db_to_lin(value_db):
 
 
 if __name__ == '__main__':
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
-    preprocess_sample(input_file, output_file)
+    options = docopt(__doc__)
+    preprocess_sample(options['IN_FILE'], options['OUT_FILE'])
