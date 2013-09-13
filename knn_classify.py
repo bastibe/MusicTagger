@@ -12,8 +12,10 @@ def k_nearest_neighbors(sample_features, feature_data, k=5):
     the k nearest neighbors
     '''
     feature_index = np.arange(5)
-    neighbors = [(dtw_distance_c(sample_features[feature_index], sample2_features[feature_index]), sample2_features['tag'].iloc[0])
-        for _, sample2_features in feature_data.groupby('file')]
+    neighbors = [ (dtw_distance_c(sample_features[feature_index], 
+                                  sample2_features[feature_index]), 
+                   sample2_features['tag'].iloc[0])
+                 for _, sample2_features in feature_data.groupby('file')]
     neighbors.sort(key = lambda x: x[0])
     neighbors_count = Counter([n[1] for n in neighbors[:k]]).most_common()
     neighbors_count = [(n[0], n[1]/k) for n in neighbors_count]

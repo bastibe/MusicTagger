@@ -1,0 +1,124 @@
+﻿
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SETTINGS/DEFINITIONS/CONFIGURATION
+\documentclass[10pt,a4paper,titlepage,twoside]{article}
+%\documentclass[10pt,a4paper,titlepage]{article}
+\usepackage{ifthen}	% if else operations used for the configuration
+\newboolean{German} 					% boolean for german language
+\setboolean{German}{true} 		% set if german should be used, else english is
+\newboolean{twosided}
+\setboolean{twosided}{true}	% set if the document should be twosided
+\newcommand{\defName}					% set the name of the author
+	{Bastian Bechtold}
+\newcommand{\defMatNr}				% set the matriculation number
+	{2195907}
+\newcommand{\defNameTwo}
+	{Manuel Kaletta}
+\newcommand{\defMatNrTwo}				% set the matriculation number
+	{2076097}
+\newcommand{\defSemester}			% the semester the report is created
+	{SS 2013}
+\newcommand{\defLocation}			% location the report was created/printed
+	{Oldenburg}
+\newcommand{\defInstitute}		% define the instutute/university
+	{Carl von Ossietzky Universität Oldenburg}
+\newcommand{\defKindOfReport}	% what the report is for (lecture/technical report/bachelor thesis)
+	{Informationsverarbeitung und Kommunikation:\\
+	Projektbeschreibung}
+\newcommand{\defTitle}				% define the title of the report
+	{Samplezuordnung für elektronische Tanzmusik}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PACKAGES AND SETTINGS
+% language packages
+\ifthenelse{\boolean{German}}
+{
+	\usepackage[german]{babel}
+}
+{
+	\usepackage[english]{babel}
+}
+
+% text related
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}		% changes font
+
+% graphics related
+\usepackage{graphicx}		% for graphics
+%\usepackage{subfigure}	% to make subfigures
+%\usepackage{epstopdf} 	% for graphics if they exist in eps
+
+% formatting related
+\usepackage{hyperref}
+\usepackage{color}			% setting colors
+\usepackage{fancyhdr} 	% set fancy header and footer
+\fancyhead{}
+\fancyfoot{}
+\ifthenelse{\boolean{twosided}}
+{
+	\fancyhead[OL,ER] {\defTitle}
+	\fancyhead[OR,EL] {\bfseries\thepage}
+	\fancyfoot[OL]		{\defName, \defNameTwo}
+	\fancyfoot[ER] 		{\defInstitute}
+}
+{
+	\fancyhead[L] {\defTitle}
+	\fancyhead[R] {\bfseries\thepage}
+	\fancyfoot[L]	{\defName, \defNameTwo}
+	\fancyfoot[R] {\defInstitute}
+}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\usepackage{geometry}		%	set the geometry of the paper
+\geometry{a4paper,left=30mm,right=30mm, top=35mm, bottom=35mm}
+\usepackage{listings}		% listings environment for source code
+\newcommand{\matlabinputlisting}[1][]{\lstinputlisting[language=Matlab,basicstyle=\ttfamily,#1,numbers=left,breaklines=true]}
+
+% equations related
+%\usepackage{dsfont}			% for sets
+\usepackage{amsmath}		% control the Matrix like Neo
+\usepackage{amstext} 		% use \text
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% START THE DOCUMENT
+\begin{document}
+\pagenumbering{alph}
+
+% cover and list of contents
+\input{Cover.tex}
+
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+
+% Content of the Report
+\pagenumbering{arabic}	% use arabic counting starting here
+\setcounter{page}{1}		% start counting the pages here
+\pagestyle{fancy} 			% start using the header and footer from here
+\input{Introduction}
+\input{Features}
+\input{Distance}
+\input{TheoryKMeans}
+\input{TheoryKnn}
+\input{Measurements}
+\input{Discussion}
+
+% Begin Appendix
+\newpage
+\begin{appendix}
+\input{Appendix}								% own appendix
+\newpage
+
+\bibliographystyle{alpha}
+\bibliography{Bibliography}
+\ifthenelse{\boolean{German}}
+{
+	\addcontentsline{toc}{section}{Literatur}
+}
+{
+	\addcontentsline{toc}{section}{References}
+}
+\end{appendix}
+
+\end{document}
