@@ -10,6 +10,18 @@ from pysoundfile import SoundFile, read_mode
 from preprocess import preprocess_sample_data
 from sklearn.decomposition import PCA
 import features
+from docopt import docopt
+
+__doc__ = \
+"""Usage: extract_features.py [-h] [-s DIR] [-f HD5_FILE] [-p PICKLE_FILE] [--pca=K]
+
+Options:
+-h --help       show this
+-s DIR          directory where all samples are stored [default: Samples]
+-f HD5_FILE     file name where feature data should be saved [default: feature_data.hd5]
+-p PICKLE_FILE  file name where the PCA object should be saved [default: pca.pickle]
+--pca=K         number of features after PCA [default: 5]
+"""
 
 
 def all_features():
@@ -92,9 +104,11 @@ def extract_features_pca(path, pca, block_len_sec=0.02):
 
 
 if __name__ == '__main__':
-    sample_path = sys.argv[1] if len(sys.argv) > 1 else "Samples"
-    hdf_name = sys.argv[2] if len(sys.argv) > 2 else "feature_data.hd5"
-    pca_name = sys.argv[3] if len(sys.argv) > 3 else "pca.pickle"
+    options = docopt(__doc__)
+    sample_path = options['-s']
+    hdf_name = options['-f']
+    pca_name = options['-p']
+    pca_count = options['--pca']
 
     # calculate feature data
     if sys.platform == 'win32':
@@ -106,12 +120,12 @@ if __name__ == '__main__':
 
     # calculate principal component analysis
     feature_indices = list(range(10))
-    pca = calculate_pca(feature_data[feature_indices], 5)
+    pca = calculate_pca(feature_data[feature_indices], pca_count)
     with open(pca_name, 'wb') as f: pickle.dump(pca, f)
 
     # calculate reduced feature data
     pca_features = pca.transform(feature_data[feature_indices])
     feature_data = feature_data[['tag', 'file']]
-    for n in range(5):
+    for n in range(pca_count):
         feature_data.insert(n, n, pca_features[:,n])
     feature_data.to_hdf(hdf_name, 'pca')
