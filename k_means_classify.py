@@ -20,16 +20,31 @@ Options:
 """
 
 def nearest_class(file, classes, distances):
+    """Returns the one class that is closest to the file."""
     return classes[np.argmin(distances[file][classes])]
 
 
 def find_best_center(cls, files, distances):
+    """Selects the one file that has the least sum distance to all other
+    files."""
     if not files: return cls
     distances = np.array(distances[files].ix[files])
     return files[np.argmin(np.sum(distances, axis=0))]
 
 
 def mini_batch_k_means(distances, num_classes, batch_size, num_iterations):
+    """Calculates class centroids for a number of classes in a sample base.
+
+    At first, random class centroids are selected in a matrix of
+    distances between samples. Then, for each iteration, a batch of
+    samples is classified to one of these classes based on its
+    distance from the class centroid. Then, for each iteration, the
+    class centroids are re-calculated such that the centroid has the
+    least distance to all class members.
+
+    Returns the file names of the class centroids.
+
+    """
     files = np.array(distances.columns)
     classes = {f:[] for f in files[np.random.randint(len(files), size=num_classes)]}
     for iteration in range(num_iterations):
@@ -44,6 +59,17 @@ def mini_batch_k_means(distances, num_classes, batch_size, num_iterations):
 
 def classify_sample(test_file_name, distances_name, pca_name, num_classes,
                     batch_size, num_iterations):
+    """Compares a test file to k-Means class centroids calculated from the
+    distances matrix. Returns the class centroid that is closest to
+    the test file.
+
+    pca_name is the file name of a pickled PCA object used for
+        dimensionality reduction of the test file features.
+
+    num_classes, batch_size and num_iterations are parameters for the
+         k-Means algorithm
+
+    """
     distances = pd.read_hdf(distances_name, 'distances')
     with open(pca_name, 'rb') as f: pca = pickle.load(f)
     classes = mini_batch_k_means(distances, num_classes, batch_size,
