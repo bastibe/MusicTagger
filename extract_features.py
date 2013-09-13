@@ -58,11 +58,9 @@ def blocks(samples, block_len, overlap=0.5, window=hann):
     This will only read the first channel if there are more than one.
 
     """
-    read_position = int(block_len*overlap)
-    while read_position < len(samples)-1:
-        read_position -= int(block_len*overlap)
+    for read_position in range(0, len(samples)-int(block_len)-1,
+                              int(block_len*overlap)):
         data = samples[read_position:read_position+block_len]
-        read_position += block_len
         data *= window(len(data))
         yield(data, rfft(data))
 
