@@ -95,7 +95,8 @@ def calculate_pca(feature_data, num_components):
 def extract_features_pca(path, pca, block_len_sec=0.02):
     features = extract_features(path, block_len_sec)
     meta_data = features[['tag', 'file']]
-    feature_data = features[np.arange(10)]
+    feature_indices = np.arange(features.shape[1]-2)
+    feature_data = features[feature_indices]
     pca_data = pca.transform(feature_data)
     pca_feature_data = meta_data
     for n in range(pca_data.shape[1]):
@@ -108,7 +109,7 @@ if __name__ == '__main__':
     sample_path = options['-s']
     hdf_name = options['-f']
     pca_name = options['-p']
-    pca_count = options['--pca']
+    pca_count = int(options['--pca'])
 
     # calculate feature data
     if sys.platform == 'win32':
@@ -119,7 +120,7 @@ if __name__ == '__main__':
     feature_data.to_hdf(hdf_name, 'features')
 
     # calculate principal component analysis
-    feature_indices = list(range(10))
+    feature_indices = np.arange(feature_data.shape[1]-2)
     pca = calculate_pca(feature_data[feature_indices], pca_count)
     with open(pca_name, 'wb') as f: pickle.dump(pca, f)
 

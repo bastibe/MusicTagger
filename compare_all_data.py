@@ -5,6 +5,18 @@ from multiprocessing import Pool
 from dynamic_time_warping import dtw_distance_c
 from operator import iadd
 from functools import reduce
+from docopt import docopt
+
+
+__doc__ = \
+"""Usage: compare_all_data.py [-h] [-f HD5_FILE] [-p PICKLE_FILE] [-d HD5_FILE]
+
+Options:
+-h --help       show this
+-f HD5_FILE     file name where feature data is stored [default: feature_data.hd5]
+-p PICKLE_FILE  file name where PCA data is stored [default: pca.pickle]
+-d HD5_FILE     file name where distances should be stored [default: distances.hd5]
+"""
 
 
 def compare_file(data1, all_data):
@@ -13,20 +25,19 @@ def compare_file(data1, all_data):
 
     """
     file1 = data1['file'].iloc[0]
-    feature_idx = np.arange(5)
-    distances = [(file1, file2, dtw_distance_c(data1[feature_idx],
-                                               data2[feature_idx]))
+    feature_indices = np.arange(data1.shape[1]-2)
+    distances = [(file1, file2, dtw_distance_c(data1[feature_indices],
+                                               data2[feature_indices]))
                  for file2, data2 in all_data.groupby('file')]
     return distances
 
 
-def compare_file_to_hdf(data):
+def compare_file_to_hdf_helper(data):
     """Compares one file to all files and returns a list.
     This is a helper function for the multiprocessing.Pool.
 
     """
-    all_data = pd.read_hdf('feature_data.hd5', 'pca')
-    return compare_file(data, all_data)
+    return compare_file(data[0], data[1])
 
 
 def compare_all_samples(feature_data):
@@ -40,9 +51,9 @@ def compare_all_samples(feature_data):
 
     """
     pool = Pool(processes=4)
-    arguments = [data for _, data in feature_data.groupby('file')]
+    arguments = [(data, feature_data) for _, data in feature_data.groupby('file')]
     # this produces a list of lists of ('file', 'file', distance) tuples
-    distances = pool.map(compare_file_to_hdf, arguments, chunksize=100)
+    distances = pool.map(compare_file_to_hdf_helper, arguments, chunksize=100)
     distances = reduce(iadd, distances) # concatenate all sub-lists
     files = feature_data['file'].unique()
     file_map = {file:idx for idx, file in enumerate(files)}
@@ -54,8 +65,8 @@ def compare_all_samples(feature_data):
 
 
 if __name__ == '__main__':
-    feature_name = sys.argv[1] if len(sys.argv) > 1 else 'feature_data.hd5'
-    distances_name = sys.argv[2] if len(sys.argv) > 2 else 'distances.hd5'
+    feature_name = options['-f']
+    distances_name = options['-d']
     feature_data = pd.read_hdf(feature_name, 'pca')
     distances = compare_all_samples(feature_data)
     distances.to_hdf(distances_name, 'distances')
