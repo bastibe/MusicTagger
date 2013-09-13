@@ -3,8 +3,6 @@ import sys
 import numpy as np
 import pandas as pd
 from cffi import FFI
-import matplotlib.pyplot as plt
-from matplotlib import cm
 from extract_features import extract_features_pca
 from docopt import docopt
 
