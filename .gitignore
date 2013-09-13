@@ -2,3 +2,8 @@
 __pycache__
 *.pyc
 SamplesProcessed
+*.so
+*.log
+*.aux
+*.toc
+*.out
