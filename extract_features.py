@@ -95,6 +95,20 @@ def calculate_pca(feature_data, num_components):
 
 
 def extract_features_pca(path, pca, block_len_sec=0.02):
+    """Calculate pca features for each block of a sound files at a given path.
+
+    This reads the sound file at path, cuts it up in windowed,
+    overlapping blocks of length block_len_sec (in seconds), and
+    executes all functions defined in the module "features" on all
+    blocks.
+
+    It then applies a PCA dimensionality reduction on those features
+    using the given pca object.
+
+    Returns a pandas DataFrame with feature names as columns and block
+    indices as rows.
+
+    """
     features = extract_features(path, block_len_sec)
     meta_data = features[['tag', 'file']]
     feature_indices = np.arange(features.shape[1]-2)
