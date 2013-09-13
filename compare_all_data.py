@@ -9,12 +9,14 @@ from docopt import docopt
 
 
 __doc__ = \
-"""Usage: compare_all_data.py [-h] [-f HD5_FILE] [-p PICKLE_FILE] [-d HD5_FILE]
+"""Usage: compare_all_data.py [-h] [-f HD5_FILE] [-d HD5_FILE]
+
+Warning: This will take about 1:30 h on a recent four-core Unix machine
+         On Window it will take 6 h or more, since multiprocessing is not available
 
 Options:
 -h --help       show this
 -f HD5_FILE     file name where feature data is stored [default: feature_data.hd5]
--p PICKLE_FILE  file name where PCA data is stored [default: pca.pickle]
 -d HD5_FILE     file name where distances should be stored [default: distances.hd5]
 """
 
@@ -47,13 +49,16 @@ def compare_all_samples(feature_data):
     removing these.
 
     As it is, this will take about 1:40 h to complete on a 4-core Unix
-    machine. Do not try this on Windows.
+    machine. Takes four times as long on Windows.
 
     """
-    pool = Pool(processes=4)
     arguments = [(data, feature_data) for _, data in feature_data.groupby('file')]
     # this produces a list of lists of ('file', 'file', distance) tuples
-    distances = pool.map(compare_file_to_hdf_helper, arguments, chunksize=100)
+    if sys.platform == 'win32':
+        distances = map(compare_file_to_hdf_helper, arguments)
+    else:
+        pool = Pool(processes=4)
+        distances = pool.map(compare_file_to_hdf_helper, arguments, chunksize=100)
     distances = reduce(iadd, distances) # concatenate all sub-lists
     files = feature_data['file'].unique()
     file_map = {file:idx for idx, file in enumerate(files)}
@@ -65,8 +70,9 @@ def compare_all_samples(feature_data):
 
 
 if __name__ == '__main__':
-    feature_name = options['-f']
+    options = docopt(__doc__)
+    features_name = options['-f']
     distances_name = options['-d']
-    feature_data = pd.read_hdf(feature_name, 'pca')
+    feature_data = pd.read_hdf(features_name, 'pca')
     distances = compare_all_samples(feature_data)
     distances.to_hdf(distances_name, 'distances')
