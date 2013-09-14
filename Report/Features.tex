@@ -1,7 +1,8 @@
 \section{Features}
 \label{sec:Features}
 Each sample is chunked into blocks. Different features are calculated on each block. The blocks have a length of 20~ms, 50~\% overlap and are Hann windowed. The remaining part of the sample, after the blocks are processed, is ignored.\\
-The used features are the root mean square (RMS), peak, crest factor, spectral centroid, logarithmic spectral centroid, spectral variance, spectral skewness, spectral flatness, spectral brightness and mean spectral absolute slope. The block is given via x[k], $k$ is the frame number, $l$ is the number of values within one block. The FFT of the block is X[n], $n$ is the bin number, $2 \cdot i$ is the FFT-Length. The features are calculated as follows:
+The used features are the root mean square (RMS), peak, crest factor, spectral centroid, logarithmic spectral centroid, spectral variance, spectral skewness, spectral flatness, spectral brightness and mean spectral absolute slope. They are descibed in detail as follows.\\
+The block is given via x[k], $k$ is the frame number, $l$ is the number of values within one block. The FFT of the block is X[n], $n$ is the bin number, $2 i$ is the FFT-Length. The features are calculated as follows:
 \begin{description}
     \item[RMS:]
         The RMS gives the energy of the block and is calculated by
@@ -9,7 +10,7 @@ The used features are the root mean square (RMS), peak, crest factor, spectral c
             \mathrm{RMS} = \sqrt{\frac{1}{l}\sum_{k=0}^{l-1}{x[k]^2}}
         \]
     \item[Peak:]
-        The peak is simply the maximum of all values within the block
+        The peak is simply the maximum of all absolute values within the block
         \[
             \mathrm{Pk} = \max{|x[k]|}
         \]
@@ -19,34 +20,38 @@ The used features are the root mean square (RMS), peak, crest factor, spectral c
             \mathrm{CF} = \frac{\mathrm{Pk}}{\mathrm{RMS}}
         \]
     \item[Spectral Centroid:]
-        The normalized frequency weighted mean of the absolute spectrum. The frequency is normalized to the sampling frequency.
+        The spectral centroid is the normalized frequency weighted mean of the absolute spectrum. The frequency is normalized to the sampling frequency. It is calculated by
         \[
-            \mathrm{SC} = \sum_{n=0}^{i}{|X[n]| \cdot \frac{n}{2 \cdot i}}
+            \mathrm{SC} = \sum_{n=0}^{i}{|X[n]| \cdot \frac{n}{2 \cdot i}}.
         \]
         
     \item[Logarithmic Spectral Centroid:]
         To account for the logarithmic sensation of frequency, the centroid regarding a logarithmic frequency axis is calculated by
         \[
-            \mathrm{LSC} = \sum_{n=0}^{i}{|X[n]| \cdot log{\frac{n}{2 \cdot i}+1}}
+            \mathrm{LSC} = \sum_{n=0}^{i}{|X[n]| \cdot \log{\frac{n}{2 i}+1}}
         \]
     \item[Spectral Variance:]
-        The spectral mean is calculated by 
-        \[
-            \overline{|X[n]|} = \frac{1}{i+1}\sum_{n=0}^{i}{|X[n]|}
-        \]
-        so that
+        The spectral variance gives a value of the change of the absolute spectrum over the frequencies. It is calculated by
         \[
             \mathrm{SV} = \sum_{n=0}^{n=\frac{l}{2}}{(|X[n]|-\overline{|X[n]|})^2}
         \]
-        can be used to calculate the variance of the absolute spectrum.
-    \item[Spectral Skewness:]
+        with the spectral mean
         \[
-            \mathrm{SS} = \sum_{n=0}^{n=\frac{l}{2}}{(|X[n]|-\overline{|X[n]|})^3}
+            \overline{|X[n]|} = \frac{1}{i+1}\sum_{n=0}^{i}{|X[n]|}.
+        \]
+    \item[Spectral Skewness:]
+    		The skewness of the absolute spectrum shows how much its distribution leans into which direction
+        \[
+            \mathrm{SS} = \sum_{n=0}^{n=\frac{l}{2}}{(|X[n]|-\overline{|X[n]|})^3}.
         \]
     \item[Spectral Flatness:]
         Given the spectral mean $\overline{|X[n]|}$ and the geometric spectral mean
         \[
             \overline{|X[n]|}_\mathrm{geom} = \sqrt[i+1]{\prod_{n=0}^{n=i}{|X[n]|}}
+        \]
+        The spectral flatness is calculated by the ratio of them
+        \[
+        		\frac{\overline{|X[n]|}_\mathrm{geom}}{\overline{|X[n]|}}.
         \]
     \item[Spectral Brightness:]
         The spectral brightness is the ratio of the high to the low frequency energy. To get the energy of low and high frequency the weighted sum of the absolute spectrum is taken. The weighting of the high frequency bins depending on the bin is given as
@@ -54,17 +59,17 @@ The used features are the root mean square (RMS), peak, crest factor, spectral c
             w_\mathrm{high} &=& 0.5 - \frac{\cos(x)}{2}\\
             w_\mathrm{low} &=& \frac{\cos(x)}{2} + 0.5
         \end{eqnarray*}
-        with x as $i$ logarithmic ordered values in the range $[0 \pi]$. The point of intersection between the low and high frequency weighting was set to approximately 2~kHz. Using the weighting function, the spectral brightness is calculated by
+        with x as $i$ logarithmic ordered values in the range $[0;~\pi]$. The point of intersection between the low and high frequency weighting was set to approximately 2~kHz. Using the weighting function, the spectral brightness is calculated by
         \[
-            \mathrm{SB} = \frac{\sum{|X[n]|\cdot w_\mathrm{high}}}{\sum{|X[n]|\cdot w_\mathrm{low} }}
+            \mathrm{SB} = \frac{\sum_{n=0}^{n=\frac{l}{2}}{|X[n]|\cdot w_\mathrm{high}}}{\sum_{n=0}^{n=\frac{l}{2}}{|X[n]|\cdot w_\mathrm{low} }}
         \]
     \item[Mean Absolute Spectral Slope:]
         The mean of the absolute spectral slope gives the amount of change in the spectrum over the frequency. It is calculated by
         \[
-            \mathrm{MASS} = \frac{1}{i}\sum_{n=1}^{i}{|X[n]|-|X[n-1]|}
+            \mathrm{MASS} = \frac{1}{i}\sum_{n=1}^{i}{||X[n]|-|X[n-1]||}
         \]
 \end{description}
 The features of all Blocks of all Samples are saved within a Pandas data frame. This makes them easily accessible.\\
-To reduce the dimensionality and increase the variance over each used dimension, a Principal Component Analysis (PCA) is used. The PCA transforms the data into a new set which is uncorrelated. The new feature space tries to reveal the dimensions which are responsible for the variance within the data. The number of dimensions as output of the PCA $d$ was set to five.\\
+To reduce the dimensionality and increase the variance over each used dimension, a Principal Component Analysis (PCA) is used. The PCA transforms the data into a new set which is uncorrelated. The new feature space tries to reveal the dimensions which are responsible for the variance within the data. The number of dimensions as output of the PCA, $d$, was set to five.\\
 To get a data point for one sample, the PCA of the features of the $n$ blocks are aligned into one feature vector. Consequently the features of each sample can be considered as a point in a $d \cdot n$ dimensional space.\\
 

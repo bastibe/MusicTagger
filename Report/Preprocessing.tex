@@ -1,9 +1,3 @@
 \section{Preprocessing of the Samples}
 \label{sec:Preprocessing}
-
-In order to make samples more comparable, all samples are preprocessed before calculating any features:
-\begin{itemize}
-  \item Multi-channel samples are panned to mono.
-  \item Silence at the beginning and end of each sample is cut off.
-  \item All samples are normalized to an RMS of 1.
-\end{itemize}
+In order to make samples more comparable, all samples are preprocessed before calculating any features. First the Multi-channel samples are panned to mono. Since there are no spatial features used in the project there are no stereo informations needed. Second the Silence at the beginning and end of each sample is cut off. All signal below a threshold level at -75~dBFS was detected as silence. As last step to normalize the energy of the samples, they were all amplified to have a RMS of 1.

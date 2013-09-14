@@ -1,4 +1,4 @@
-\section{$k$-Nearest-Neighbors Algorithm}
+\section{\textit{k}-Nearest-Neighbors Algorithm}
 \label{sec:TheoryKnn}
 The $k$-Nearest-Neighbors ($k$-NN) algorithm performs a distribution free classification task. It uses a lazy learning approach which means that all the training data is saved. The Algorithm searches in that data base for the $k$ points which are the nearest to the point to classify. The distance measurement depends on the application. The class which is most often used in those $k$ nearest neighbors is the one assumed for the sample \cite[p.~338~f.]{bib:Alzate2007}.\\
 The space of the data points is described in section~\ref{sec:Features}. The distance used in our work is described in section~\ref{sec:Distance}. The iteration over all data points is performed through the Pandas data frame. The sorting of the distances was done by the sorting algorithm of Python. As output of the $k$-NN classification the ratio of found neighbors to the total number of neighbors is given. This can be interpreted as poorly measured propability of a point belonging to a class.
