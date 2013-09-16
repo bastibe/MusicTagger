@@ -12,25 +12,38 @@ In order for this to work, the classes need not correspond to musically relevant
 
 #### Block Processing
 
-All the existing samples are cut up in blocks of 20 ms with 50% overlap. These blocks are used to calculate a set of features. The features are then used for classification. You can use the script *extract_features.py* to calculate a Pandas DataFrame (saved as HDF file) containing all feature data from all files in the sample base. Since this calculation is very time consuming, an already calculated database like this is available as *feature_data.hd5*. You can use the script *preprocess.py* to preprocess one sample for testing purposes.
+All the existing samples are cut up in blocks of 20 ms with 50% overlap. These blocks are used to calculate a set of features. The features are then used for classification. You can use the script *[extract_features.py][]* to calculate a Pandas DataFrame (saved as HDF file) containing all feature data from all files in the sample base. Since this calculation is very time consuming, an already calculated database like this is available as *[feature_data.hd5][]*. You can use the script *[preprocess.py][]* to preprocess one sample for testing purposes.
+
+[extract_features.py]: https://github.com/bastibe/MusicTagger/blob/master/extract_features.py
+[feature_data.hd5]: https://github.com/bastibe/MusicTagger/blob/master/feature_data.hd5
+[preprocess.py]: https://github.com/bastibe/MusicTagger/blob/master/preprocess.py
 
 #### Features
 
-Several different features have been analyzed for their suitability for our purpose. We looked at classical features such as RMS, peak, crest factor as well as several spectral features such as the centroid, log centroid, variance, skewness, flatness, brightness and a slope mean. These features have been reduced to five abstract features using a principal component analysis (PCA). An already calculated and pickled PCA object is available as *pca.pickle*.
+Several different features have been analyzed for their suitability for our purpose. We looked at classical features such as RMS, peak, crest factor as well as several spectral features such as the centroid, log centroid, variance, skewness, flatness, brightness and a slope mean. These features have been reduced to five abstract features using a principal component analysis (PCA). An already calculated and pickled PCA object is available as *[pca.pickle][]*.
 
-More complex features such as full spectra have been tried as well, but turned out to be no better than the simple features mentioned above. The file *features.py* contains all the features calculated.
+More complex features such as full spectra have been tried as well, but turned out to be no better than the simple features mentioned above. The file *[features.py][]* contains all the features calculated.
+
+[pca.pickle]: https://github.com/bastibe/MusicTagger/blob/master/pca.pickle
+[features.py]: https://github.com/bastibe/MusicTagger/blob/master/features.py
 
 #### Classification of the Samples
 
-Each sample is now a collection of several blocks of features. The sample bank is organized into musically relevant classes. We used the Dynamic Time Warping (DTW) algorithm to calculate the difference between two samples. You can use *dynamic_time_warping.py* to calculate the DTW distance between two samples. The DTW algorithm was initially implemented in Python, but found to be too slow. Now, *dynamic_time_warping.py* by default uses a C implementation (*dtw.c*), which should be compiled to a shared library called *dtw.dll* or *dtw.so*. This provides this critical algorithm with a performance boost of about two orders of magnitude (100x). The C library is called using the CFFI.
+Each sample is now a collection of several blocks of features. The sample bank is organized into musically relevant classes. We used the Dynamic Time Warping (DTW) algorithm to calculate the difference between two samples. You can use *[dynamic_time_warping.py][]* to calculate the DTW distance between two samples. The DTW algorithm was initially implemented in Python, but found to be too slow. Now, *[dynamic_time_warping.py][]* by default uses a C implementation (*[dtw.c][]*), which should be compiled to a shared library called *dtw.dll* or *dtw.so*. This provides this critical algorithm with a performance boost of about two orders of magnitude (100x). The C library is called using the CFFI.
 
-This algorithm enables us to use a *k*-NN ("k-nearest-neighbors") algorithm to classify new test samples into these classes. You can use *knn_classify.py* to classify one sample using this algorithm.
+This algorithm enables us to use a *k*-NN ("k-nearest-neighbors") algorithm to classify new test samples into these classes. You can use *[knn_classify.py][]* to classify one sample using this algorithm.
 
-Additionally, a modified [Fast *k*-Means][0] algorithm is used to algorithmically cluster the sample base into other classes. You can use the script *compare_all_data.py* to calculate a Pandas DataFrame (saved as HDF file) that contains all distances of all samples to all samples. Since this computation is very time consuming, an already calculated database is available as *distances.hd5*. 
+Additionally, a modified [Fast *k*-Means][k-means] algorithm is used to algorithmically cluster the sample base into other classes. You can use the script *[compare_all_data.py][]* to calculate a Pandas DataFrame (saved as HDF file) that contains all distances of all samples to all samples. Since this computation is very time consuming, an already calculated database is available as *[distances.hd5][]*. 
 
-The DTW distance can then be used to classify new samples into one of these classes. (This is equivalent to K-Nearest-Neighbors with K=1). You can use *k_means_classify.py* to calculate cluster centroids and classify a sample to one of those centroids.
+The DTW distance can then be used to classify new samples into one of these classes. (This is equivalent to K-Nearest-Neighbors with K=1). You can use *[k_means_classify.py][]* to calculate cluster centroids and classify a sample to one of those centroids.
 
-[0]: http://www.eecs.tufts.edu/~dsculley/papers/fastkmeans.pdf
+[dynamic_time_warping.py]: https://github.com/bastibe/MusicTagger/blob/master/dynamic_time_warping.py
+[dtw.c]: https://github.com/bastibe/MusicTagger/blob/master/dtw.c
+[knn_classify.py]: https://github.com/bastibe/MusicTagger/blob/master/knn_classify.py
+[k-means]: http://www.eecs.tufts.edu/~dsculley/papers/fastkmeans.pdf
+[compare_all_data.py]: https://github.com/bastibe/MusicTagger/blob/master/compare_all_data.py
+[distances.hd5]: https://github.com/bastibe/MusicTagger/blob/master/distances.hd5
+[k_means_classify.py]: https://github.com/bastibe/MusicTagger/blob/master/k_means_classify.py
 
 ### Requirements
 
@@ -49,4 +62,6 @@ This has been developed using Python 3.3 on Windows and Mac
 
 ### Motivation
 
-This was created as part of a homework project. The homework report can be downloaded [here](https://github.com/bastibe/MusicTagger/raw/master/Report/Main.pdf).
+This was created as part of a homework project. The homework report can be downloaded [in the Reports directory][pdf].
+
+[pdf]: https://github.com/bastibe/MusicTagger/raw/master/Report/Main.pdf
