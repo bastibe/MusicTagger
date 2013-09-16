@@ -49,12 +49,12 @@ For every feature, the block is given as $x$, $x[k]$ is a frame within the block
         \[
             \overline{|X[n]|}_\mathrm{geom} = \sqrt[N+1]{\prod_{n=0}^{N}{|X[n]|}},
         \]
-        the spectral flatness is calculated by the ratio of them.
+        the spectral flatness is calculated as the ratio of them.
         \[
-        		\frac{\overline{|X[n]|}_\mathrm{geom}}{\overline{|X[n]|}}.
+        		\frac{\overline{|X[n]|}_\mathrm{geom}}{\overline{|X[n]|}}
         \]
     \item[Spectral Brightness:]
-        The spectral brightness is the ratio of the high to the low frequency energy. To get the energy of low and high frequency the weighted sum of the absolute spectrum is taken. The weighting of the high frequency bins is given as
+        The spectral brightness is the ratio of high to the low frequency energy. To get the energy of low and high frequency, the weighted sum of the absolute spectrum is taken. The weighting of the high frequency bins is given as
         \begin{eqnarray*}
             w_\mathrm{high} &=& 0.5 - \frac{\cos(\omega)}{2}\\
             w_\mathrm{low} &=& \frac{\cos(\omega)}{2} + 0.5
@@ -69,7 +69,7 @@ For every feature, the block is given as $x$, $x[k]$ is a frame within the block
             \mathrm{MASS} = \frac{1}{N}\sum_{n=1}^{N}{||X[n]|-|X[n-1]||}
         \]
 \end{description}
-The features of all blocks of all samples are saved within a Pandas DataFrame. This makes them easily searchable and saveable.\\
-To reduce the dimensionality and increase the variance, a Principal Component Analysis (PCA) is used. The PCA transforms the data into a new set of dimensions with a minimum amount of correlation. This new feature space contains the dimensions which are responsible for most of the variance within the data. Using the PCA, we reduced our features to $d=5$ dimensions.\\
-To get a data point for one sample, the PCA of all the features in the $n$ blocks can be seen as into one long feature vector of length $d \cdot n$. Consequently the features of each sample can be considered as a point in a $d \cdot n$ dimensional space.\\
-All feature data and PCA-reduced feature data are saved as Pandas DataFrames. This reduces the whole data set from about 560~Mb of wave files to a 60~Mb HD5 database. Calculating this takes about 5 minutes on a computer\footnote{The multiprocessing module in Python seemed to have a problem with Windows, thus forcing the Windows version to use only one core, which would quadruples the runtime.}.
+The features of all blocks of all samples are saved within a Pandas DataFrame\footnote{http://pandas.pydata.org/}. This makes them easily searchable and saveable.\\
+To reduce the dimensionality and increase the variance, a Principal Component Analysis (PCA) is used\footnote{Using sklearn.decomposition.PCA from scikit-learn (http://scikit-learn.org/)}. The PCA transforms the data into a new set of dimensions with a minimum amount of correlation. This new feature space contains the dimensions, which are responsible for most of the variance within the data. Using the PCA, we reduced our features to $d=5$ dimensions.\\
+To get a data point for one sample, the PCA of all the features in the $n$ blocks can be seen as one long feature vector of length $d \cdot n$. Consequently, the features of each sample can be considered as a point in a $d \cdot n$ dimensional space.\\
+All feature data and PCA-reduced feature data are saved as Pandas DataFrames. This reduces the whole data set from about 560~Mb of wave files to a 60~Mb HD5 database. Calculating this takes about 5 minutes on a modern computer\footnote{The multiprocessing module in Python seemed to have a problem with Windows, thus forcing the Windows version to use only one core, which would quadruple the runtime.}.
