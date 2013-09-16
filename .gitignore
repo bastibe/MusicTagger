@@ -7,3 +7,5 @@ SamplesProcessed
 *.aux
 *.toc
 *.out
+*.bbl
+*.blg

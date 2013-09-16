@@ -4,9 +4,9 @@ Electronic Music Tagger
 
 Electronic Dance Music (EDM) is usually built from electronic sound sources such as synthesizers or drum machines. In the last decade, more and more software products such as Digital Audio Workstations (DAW) and software instruments have been used as well. Still, a major part of all samples are still derived from small audio snippets that are mixed into the music.
 
-These samples could be base elements such as single snare hits, or whole rythmic loops, or even complex drum arrangements. In this project we assume that electronic dance music is comprised of atomic, identifiable elements. Thus, complex musical productions should be representable as superpositions of many short samples. We liken these samples to words in speech.
+These samples could be base elements such as single snare hits, or whole rhythmic loops, or even complex drum arrangements. In this project we assume that electronic dance music is comprised of atomic, identifiable elements. Thus, complex musical productions should be representable as superpositions of many short samples. We liken these samples to words in speech.
 
-During the production of electronic dance music it is important to use samples that are similar to each other. The process of chosing these samples can be very complex. We try to create an algorithm to aid in this selection process. This should happen in three distinct steps: First, an existing collection of samples should be divided into different classes. Secondly, short parts of a musical track are classified according to these classes. For typical tracks, there will be no clear classification, but more likely a superposition of different probablities for each short part. Lastly, these classifications can be used to match the musical track back to the samples, thus re-synthesizing the music.
+During the production of electronic dance music it is important to use samples that are similar to each other. The process of choosing these samples can be very complex. We try to create an algorithm to aid in this selection process. This should happen in three distinct steps: First, an existing collection of samples should be divided into different classes. Secondly, short parts of a musical track are classified according to these classes. For typical tracks, there will be no clear classification, but more likely a superposition of different probabilities for each short part. Lastly, these classifications can be used to match the musical track back to the samples, thus re-synthesizing the music.
 
 In order for this to work, the classes need not correspond to musically relevant classes such as bass drums or string instruments.
 
@@ -26,7 +26,7 @@ Each sample is now a collection of several blocks of features. The sample bank i
 
 This algorithm enables us to use a *k*-NN ("k-nearest-neighbors") algorithm to classify new test samples into these classes. You can use *knn_classify.py* to classify one sample using this algorithm.
 
-Additionally, a modified [Fast *k*-Means][0] algorithm is used to algorithmically cluster the sample base into other classes. You can use the script *compare_all_data.py* to calculate a Pandas DataFrame (saved as HDF file) that contaians all distances of all samples to all samples. Since this computation is very time consuming, an already calculated database is available as *distances.hd5*. 
+Additionally, a modified [Fast *k*-Means][0] algorithm is used to algorithmically cluster the sample base into other classes. You can use the script *compare_all_data.py* to calculate a Pandas DataFrame (saved as HDF file) that contains all distances of all samples to all samples. Since this computation is very time consuming, an already calculated database is available as *distances.hd5*. 
 
 The DTW distance can then be used to classify new samples into one of these classes. (This is equivalent to K-Nearest-Neighbors with K=1). You can use *k_means_classify.py* to calculate cluster centroids and classify a sample to one of those centroids.
 
@@ -46,3 +46,7 @@ In order to run the programs in this project, you need to have the following Pyt
 - sklearn
 
 This has been developed using Python 3.3 on Windows and Mac
+
+### Motivation
+
+This was created as part of a homework project. The homework report can be downloaded [here](https://github.com/bastibe/MusicTagger/raw/master/Report/Main.pdf).
