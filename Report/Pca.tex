@@ -1,0 +1,12 @@
+\section{Principal Component Analysis}
+To reduce the dimensionality and increase the variance, a Principal Component Analysis (PCA) is used. The PCA transforms the data into a new set of dimensions with a minimum amount of correlation. This new feature space contains the dimensions, which are responsible for most of the variance within the data. Hence the covariance is maximized. The covariance matrix of a vector $x$ of length $n$ is given as
+\[
+    \mathbf{S} = \frac{1}{N} \sum_{i=1}^{n}{(\mathbf{x}_i - \overline{\mathbf{x}}) (\mathbf{x}_i - \overline{\mathbf{x}})^\mathsf{T}}
+\]
+with $\overline{x}$ as mean value of the vector. A PCA resulting in one dimension would always result in the eigenvector $\mathbf{u}_1$ with the largest eigenvalue of the covariance matrix $\lambda_1$
+\[
+    \mathbf{S} \mathbf{u_1} = \lambda_1 \mathbf{u}_1.
+\]
+The eigenvector gives then the transformation of the PCA. More dimensions could be calculated by defining Iteratively the eigenvectors. For higher dimensions also more efficient algorithms are known. Details on the theory can be found in \cite[p.~561]{bib:Bishop2006}. Using the PCA\footnote{Using sklearn.decomposition.PCA from scikit-learn (http://scikit-learn.org/)}, we reduced our features to $d=5$ dimensions.\\\\
+To get a data point for one sample, the PCA of all the features in the $n$ blocks can be seen as one long feature vector of length $d \cdot n$. Consequently, the features of each sample can be considered as a point in a $d \cdot n$ dimensional space.\\
+All feature data and PCA-reduced feature data are saved as Pandas DataFrames. This reduces the whole data set from about 560~Mb of wave files to a 60~Mb HD5 database. Calculating this takes about 5 minutes on a modern computer\footnote{The multiprocessing module in Python seemed to have a problem with Windows, thus forcing the Windows version to use only one core, which would quadruple the runtime.}.

@@ -1,3 +1,20 @@
 \section{Preprocessing of the Samples}
 \label{sec:Preprocessing}
-In order to make samples more comparable, all samples are preprocessed. First, the multi-channel samples are panned to mono. Since there are no spatial features used in the project, no stereo information is needed. Second, silence at the beginning and end of each sample is cut off. All signal below a threshold level at -75~dBFS is detected as silence. Lastly, all samples were amplified to have an RMS of 1 in order to normalize the energy of the samples.
+In order to make samples more comparable, all samples are preprocessed. First, the multi-channel samples are panned to mono. Since there are no spatial features used in the project, no stereo information is needed. To remove the stereo information the arithmetic mean in between the left and right channel is calculated. This is the mid signal of the stereo signal
+\[
+    x_\text{mid}[k] = \frac{1}{2} \left( x_\text{left}[k] + x_\text{right}[k] \right).
+\]
+Second, silence at the beginning and end of each sample is cut off. All signal below a threshold level at -75~dBFS is detected as silence
+\[
+    x_\text{sil}[k] = 
+    \begin{cases}
+          0 & \text{if} \quad 20\cdot \lg(x_\text{mid}[a]) < -75~\forall~a \leq k\\
+          0 & \text{if} \quad 20\cdot \lg(x_\text{mid}[a]) < -75~\forall~a \geq k\\
+          x_\text{mid}[k] & \text{else}
+    \end{cases}
+\]
+Lastly, all samples were amplified to have an root mean square (RMS) of 1 in order to normalize the energy of the samples
+\[
+    x_\text{pre}[k] = \frac{x_\text{sil}[k]}{\sqrt{\overline{x^2}}},
+\]
+$\overline{x^2}$ is the mean of the squared signal.
