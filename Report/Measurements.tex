@@ -3,15 +3,15 @@
 A test sample base was created with ten tracks for each class. All of the test samples were new samples that were not included in the training sample base.
 
 \subsection{$k$-Means}
-The $k$-Means algorithm was used to calculate $k=10$ class centers in our sample base using a batch size of 500 points and 50 iterations. These classes were used to classify our test sample base. The tags of the test samples within each class cluster created by the $k$-Means algorithm were counted. The results are shown in figure~\ref{fig:k-Means}.\\
+The $k$-Means algorithm was used to calculate $k=10$ class centers in our sample base using a batch size of 500 points and 50 iterations. These classes were used to classify our test sample base. The tags of the test samples within each of the 10 class clusters created by the $k$-Means algorithm were counted. The results are shown in figure~\ref{fig:k-Means}.\\
 It can be seen that the algorithmically calculated classes do not correspond to the tags defined by our sample base. This was to be expected. Nevertheless, it seems that there are some consistent mappings in the structuring of the tags. This needs to be verified with further research.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.45\linewidth]{../plots/k_means_1.png}
-\includegraphics[width=0.45\linewidth]{../plots/k_means_2.png}
-\includegraphics[width=0.45\linewidth]{../plots/k_means_3.png}
-\includegraphics[width=0.45\linewidth]{../plots/k_means_4.png}
+\includegraphics[width=0.45\linewidth]{../plots/k_means_1_mod.png}
+\includegraphics[width=0.45\linewidth]{../plots/k_means_2_mod.png}
+\includegraphics[width=0.45\linewidth]{../plots/k_means_3_mod.png}
+\includegraphics[width=0.45\linewidth]{../plots/k_means_4_mod.png}
 \caption{Tagged classes of test samples vs. tags of algorithmically calculated class centers for $k$-Means classification. Four plots for four runs of the $k$-Means algorithm.}
 \label{fig:k-Means}
 \end{figure}
