@@ -6,6 +6,7 @@ from pylab import *
 #import numpy as np
 import pandas as pd
 sys.path.append('..')
+import pdb
 
 from knn_classify import k_nearest_neighbors
 from extract_features import walk_files, extract_features_pca
@@ -36,11 +37,20 @@ for idx, tag in enumerate(tags):
 
 tag2idx = {tag:idx for idx, tag in enumerate(tags)}
 knn_histogram = zeros((len(tags), len(tags)))
+right_class_hits = 0
+wrong_class_hits = 0
 for idx, item in enumerate(count_all):
     for tag, count in item:
         knn_histogram[idx, tag2idx[tag]] = count
+        if idx == tag2idx[tag]:
+            right_class_hits += count
+        else:
+            wrong_class_hits += count
 
+            
+with open("knn_histogram", 'wb') as f: pickle.dump(knn_histogram, f)
 
+            
 ax = imshow(knn_histogram, cmap='gray', interpolation='none')
 ax.axes.set_xticks(np.arange(12))
 ax.axes.set_xticklabels(tags, rotation=90)
@@ -49,3 +59,8 @@ ax.axes.set_yticklabels(tags)
 colorbar()
 ax.axes.set_position((-0.3,0.35,1,0.6))
 gcf().savefig('k_nn.png')
+
+
+print("right class hits: ", right_class_hits)
+print("wrong class hits: ", wrong_class_hits)
+print("percentage right: ", 100*right_class_hits/(right_class_hits+wrong_class_hits))
