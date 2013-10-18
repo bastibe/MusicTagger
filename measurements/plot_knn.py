@@ -6,7 +6,6 @@ from pylab import *
 #import numpy as np
 import pandas as pd
 sys.path.append('..')
-import pdb
 
 from knn_classify import k_nearest_neighbors
 from extract_features import walk_files, extract_features_pca
