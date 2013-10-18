@@ -48,9 +48,6 @@ for idx, item in enumerate(count_all):
             wrong_class_hits += count
 
             
-with open("knn_histogram", 'wb') as f: pickle.dump(knn_histogram, f)
-
-            
 ax = imshow(knn_histogram, cmap='gray', interpolation='none')
 ax.axes.set_xticks(np.arange(12))
 ax.axes.set_xticklabels(tags, rotation=90)
